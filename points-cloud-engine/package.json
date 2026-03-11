@@ -1,0 +1,29 @@
+{
+  "name": "points-cloud-engine",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+
+    "lint": "oxlint src",
+    "lint:fix": "oxlint src --fix",
+    "format": "oxfmt src",
+    "format:fix": "oxfmt src",
+    "format:check": "oxfmt src --check",
+    "typecheck": "tsc --noEmit",
+    "fix": "pnpm run lint:fix && pnpm run format:fix",
+
+    "check": "sh scripts/check.sh"
+  },
+  "devDependencies": {
+    "typescript": "~5.9.3",
+    "vite": "^8.0.0-beta.13"
+  },
+  "dependencies": {
+    "oxfmt": "^0.38.0",
+    "oxlint": "^1.53.0"
+  }
+}
