@@ -1,4 +1,13 @@
 {
-  "cSpell.words": ["oxfmt", "oxlint", "Phong", "threejs"],
+  "cSpell.words": [
+    "glsl",
+    "highp",
+    "lowp",
+    "mediump",
+    "oxfmt",
+    "oxlint",
+    "Phong",
+    "threejs"
+  ],
   "editor.formatOnSave": true
 }

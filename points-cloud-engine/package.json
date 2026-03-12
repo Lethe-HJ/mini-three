@@ -3,6 +3,15 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "./src/core/index.ts",
+  "types": "./src/core/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/core/index.ts",
+      "import": "./src/core/index.ts",
+      "default": "./src/core/index.ts"
+    }
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -14,11 +23,11 @@
     "format:fix": "oxfmt src",
     "format:check": "oxfmt src --check",
     "typecheck": "tsc --noEmit",
-    "fix": "pnpm run lint:fix && pnpm run format:fix",
-
+    "fix": "sh scripts/fix.sh",
     "check": "sh scripts/check.sh"
   },
   "devDependencies": {
+    "points-cloud-engine": "workspace:*",
     "@types/three": "^0.170.0",
     "typescript": "~5.9.3",
     "vite": "^8.0.0-beta.13"
