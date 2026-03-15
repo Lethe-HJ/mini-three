@@ -1,6 +1,6 @@
-import type { SceneObjectBase } from "../scene/base";
-import type { Mat4 } from "../common/math/matrix/matrix4";
-import type { Geometry } from "../geometry/type";
+import { m4, type Mat4 } from "../common/math/matrix/matrix4";
+import type { BaseObject } from "../common/object/base";
+import type { Geometry } from "../geometry/base";
 import type { Material } from "../material/type";
 import type { Group } from "../group/type";
 import type { Camera } from "../camera/type";
@@ -16,16 +16,83 @@ export interface MeshMatrixSet {
   localModel: Mat4;
 }
 
-export interface Mesh extends SceneObjectBase {
+export class Mesh implements BaseObject {
   name: typeof ObjectType.Mesh;
   geometry: Geometry;
   material: Material;
   parent: Group | null;
   matrixes: MeshMatrixSet;
-  attach(gl: WebGLRenderingContext): void;
-  updateModelMatrix(): void;
-  updateMatrix(gl: WebGLRenderingContext, camera: Camera): void;
-  setRotation(xDeg: number, yDeg: number, zDeg: number): void;
-  setPosition(x: number, y: number, z: number): void;
-  setScale(x: number, y: number, z: number): void;
+
+  constructor(geometry: Geometry, material: Material) {
+    this.name = ObjectType.Mesh;
+    this.geometry = geometry;
+    this.material = material;
+    this.parent = null;
+    this.matrixes = {
+      mvp: { value: null, location: null },
+      model: { value: null, location: null },
+      normal: { value: null, location: null },
+      rotation: m4.identity(),
+      translate: m4.identity(),
+      scale: m4.identity(),
+      localModel: m4.identity(),
+    };
+  }
+
+  attach(gl: WebGLRenderingContext): void {
+    this.material.attach(gl);
+    const program = this.material.shaderProgram;
+    gl.useProgram(program);
+    this.matrixes.mvp.location = gl.getUniformLocation(program, "u_mvpMatrix");
+    this.matrixes.model.location = gl.getUniformLocation(program, "u_modelMatrix");
+    this.matrixes.normal.location = gl.getUniformLocation(program, "u_normalMatrix");
+    this.geometry.attach(gl, program);
+  }
+
+  updateModelMatrix(): void {
+    const parentModel = this.parent ? this.parent.matrixes.model : null;
+    this.matrixes.localModel = m4.multiplySeries(
+      this.matrixes.translate,
+      this.matrixes.rotation,
+      this.matrixes.scale,
+    );
+    this.matrixes.model.value = parentModel
+      ? m4.multiply(parentModel, this.matrixes.localModel)
+      : this.matrixes.localModel;
+  }
+
+  updateMatrix(gl: WebGLRenderingContext, camera: Camera): void {
+    const modelMatrix = this.matrixes.model.value!;
+    const mvpMatrix = m4.multiply(camera.matrix.vp, modelMatrix);
+    this.matrixes.mvp.value = mvpMatrix;
+    const normalMatrix = m4.transpose(m4.inverse(modelMatrix));
+    this.matrixes.normal.value = normalMatrix;
+    const toF32 = (m: Mat4) => (m instanceof Float32Array ? m : new Float32Array(m));
+    if (this.matrixes.model.location)
+      gl.uniformMatrix4fv(this.matrixes.model.location, false, toF32(modelMatrix));
+    if (this.matrixes.mvp.location)
+      gl.uniformMatrix4fv(this.matrixes.mvp.location, false, toF32(mvpMatrix));
+    if (this.matrixes.normal.location)
+      gl.uniformMatrix4fv(this.matrixes.normal.location, false, toF32(normalMatrix));
+  }
+
+  setRotation(xDeg: number, yDeg: number, zDeg: number): this {
+    this.matrixes.rotation = m4.multiplySeries(
+      m4.identity(),
+      m4.xRotation(xDeg),
+      m4.yRotation(yDeg),
+      m4.zRotation(zDeg),
+    );
+    return this;
+  }
+
+  setPosition(x: number, y: number, z: number): this {
+    this.matrixes.translate = m4.multiplySeries(m4.identity(), m4.translation(x, y, z));
+    return this;
+  }
+
+  setScale(x: number, y: number, z: number): this {
+    this.matrixes.scale = m4.multiplySeries(m4.identity(), m4.scaling(x, y, z));
+    return this;
+  }
 }

@@ -1,7 +1,7 @@
 export const demoInfo = {
   id: "demo1",
   name: "Demo 1",
-  description: "第一个演示：基本的 WebGL 和 Three.js 渲染",
+  description: "第一个演示：基本的phong材质和lambert材质旋转展示",
   showInMenu: true,
   webglFile: "webgl.ts",
   threejsFile: "threejs.ts",

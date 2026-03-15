@@ -6,3 +6,5 @@ export const color3 = {
     return [r, g, b];
   },
 };
+
+export * from "./color";

@@ -1,28 +1,20 @@
-import { m4 } from "../common/math/matrix/matrix4";
-import type { Camera, CameraConfig } from "./type";
+import { Camera } from "./type";
+import type { Vec3 } from "../common/math/vector/vec3";
 
-export function createCamera(config: CameraConfig): Camera & CameraConfig {
-  const { position, target, up, fov, aspect, near, far } = config;
-
-  const cameraMatrix = m4.lookAt(position, target, up);
-  const viewMatrix = m4.inverse(cameraMatrix);
-
-  const projectionMatrix = m4.perspective(fov, aspect, near, far);
-
-  const vpMatrix = m4.multiply(projectionMatrix, viewMatrix);
-
-  return {
-    ...config,
-    matrix: {
-      camera: cameraMatrix,
-      projection: projectionMatrix,
-      view: viewMatrix,
-      vp: vpMatrix,
-    },
-    attach(gl: WebGLRenderingContext, program: WebGLProgram) {
-      gl.useProgram(program);
-      const loc = gl.getUniformLocation(program, "u_cameraPosition");
-      if (loc) gl.uniform3fv(loc, position);
-    },
-  };
+export function createCamera(config: {
+  fov: number;
+  aspect: number;
+  near: number;
+  far: number;
+  position: Vec3;
+  target: Vec3;
+  up: Vec3;
+}): Camera {
+  const camera = new Camera(config.fov, config.aspect, config.near, config.far);
+  camera.setPosition(config.position[0], config.position[1], config.position[2]);
+  camera.lookAt(config.target[0], config.target[1], config.target[2]);
+  camera.setUp(config.up[0], config.up[1], config.up[2]);
+  return camera;
 }
+
+export { Camera } from "./type";
