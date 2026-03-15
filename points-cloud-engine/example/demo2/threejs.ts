@@ -17,10 +17,10 @@ import {
   WebGLRenderer,
   Color,
   Mesh,
-  Vector2,
   Group,
 } from "three";
 import Stats from "stats.js";
+import { CameraTransformController } from "../utils/transform";
 
 // 获取 canvas 元素
 const canvas = document.getElementById("canvas2") as HTMLCanvasElement | null;
@@ -36,21 +36,21 @@ canvas.height = height * dpr;
 canvas.style.width = `${width}px`;
 canvas.style.height = `${height}px`;
 
-// 鼠标交互控制 - 提前声明变量
-let isDragging = false;
-let previousMousePosition = new Vector2();
-let cameraDistance = 30;
-let theta = 0; // 方位角 (绕 y 轴)
-let phi = 0; // 极角 (绕 x 轴)
-
-// 防抖定时器
-
 // 调整相机位置以适应更大的场景
 const camera = new PerspectiveCamera(60, width / height, 0.1, 1000);
 camera.up.set(0, 1, 0);
 
-// 初始化相机位置
-updateCameraPosition();
+// 创建相机变换控制器
+const cameraController = new CameraTransformController(camera, {
+  initialDistance: 30,
+  minDistance: 10,
+  maxDistance: 100,
+  rotationSpeed: 0.002,
+  zoomSpeed: 0.01,
+});
+
+// 绑定鼠标事件
+cameraController.bindEvents(canvas);
 
 const scene = new Scene();
 scene.background = new Color(0xffffffff);
@@ -65,13 +65,13 @@ pointLight.position.set(50, 50, 50);
 scene.add(pointLight);
 
 // 创建立方体几何体
-const boxGeometry = new BoxGeometry(1, 1, 1);
+const boxGeometry = new BoxGeometry(0.2, 0.2, 0.2);
 
 const group = new Group();
 scene.add(group);
 // 创建1000个立方体
 const meshes: Mesh[] = [];
-const count = 1000;
+const count = 10000;
 const spread = 20; // 分布范围
 
 for (let i = 0; i < count; i++) {
@@ -116,85 +116,17 @@ renderer.setClearColor(0x000000);
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
-// 更新相机位置函数
-function updateCameraPosition() {
-  // 基于球坐标系计算相机位置
-  const x = Math.sin(theta) * Math.cos(phi) * cameraDistance;
-  const y = Math.sin(phi) * cameraDistance;
-  const z = Math.cos(theta) * Math.cos(phi) * cameraDistance;
-
-  camera.position.set(x, y, z);
-  camera.lookAt(0, 0, 0);
-}
-
-// 鼠标交互控制
-
-// 鼠标按下事件
-canvas.addEventListener("mousedown", (event) => {
-  isDragging = true;
-  previousMousePosition.set(event.clientX, event.clientY);
-});
-
-// 鼠标移动事件
-canvas.addEventListener("mousemove", (event) => {
-  if (!isDragging) return;
-
-  const currentMousePosition = new Vector2(event.clientX, event.clientY);
-
-  const mouseDelta = currentMousePosition.clone().sub(previousMousePosition);
-
-  // 调整旋转速度，使拖动更直观
-  const rotationSpeed = 0.002;
-
-  // 更新球坐标系的角度（调整方向使其符合直觉）
-  theta -= mouseDelta.x * rotationSpeed;
-  phi += mouseDelta.y * rotationSpeed;
-
-  // 限制极角范围，避免过度旋转
-  phi = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, phi));
-
-  previousMousePosition.copy(currentMousePosition);
-
-  // 实时更新相机位置
-  updateCameraPosition();
-});
-
-// 鼠标释放事件
-canvas.addEventListener("mouseup", () => {
-  isDragging = false;
-});
-
-// 鼠标离开事件
-canvas.addEventListener("mouseleave", () => {
-  isDragging = false;
-});
-
-// 鼠标滚轮事件 - 缩放
-canvas.addEventListener("wheel", (event) => {
-  event.preventDefault();
-
-  // 缩放速度
-  const zoomSpeed = 0.01; // 调整缩放速度，使缩放更直观
-  cameraDistance = Math.max(
-    10,
-    Math.min(100, cameraDistance - event.deltaY * zoomSpeed),
-  );
-
-  // 实时更新相机位置
-  updateCameraPosition();
-});
-
 // 动画：每个立方体以不同速度旋转
 function animate() {
   stats.begin();
 
-  // meshes.forEach((mesh, index) => {
-  //   // 每个立方体有不同的旋转速度
-  //   const speed = 0.5 + (index % 5) * 0.01;
-  //   mesh.rotation.x += 0.01 * speed;
-  //   mesh.rotation.y += 0.02 * speed;
-  //   mesh.rotation.z += 0.005 * speed;
-  // });
+  meshes.forEach((mesh, index) => {
+    // 每个立方体有不同的旋转速度
+    const speed = 0.5 + (index % 5) * 0.01;
+    mesh.rotation.x += 0.01 * speed;
+    mesh.rotation.y += 0.02 * speed;
+    mesh.rotation.z += 0.005 * speed;
+  });
 
   renderer.render(scene, camera);
   stats.end();
