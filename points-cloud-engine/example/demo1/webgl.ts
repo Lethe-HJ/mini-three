@@ -12,6 +12,7 @@ import {
   createRenderer,
   createScene,
 } from "points-cloud-engine";
+import Stats from "stats.js";
 
 // 获取 canvas 元素
 const canvas = document.getElementById("canvas1") as HTMLCanvasElement | null;
@@ -132,13 +133,19 @@ scene.add(group);
 
 const renderer = createRenderer(gl);
 
+// 性能监控
+const stats = new Stats();
+document.body.appendChild(stats.dom);
+
 let deg = 1;
 function animate() {
+  stats.begin();
   deg += 0.005;
   if (deg > 20) deg = 0;
   mesh1.setRotation(deg, 2 * deg, 3 * deg);
   mesh2.setRotation(deg, 2 * deg, 3 * deg);
   renderer.render(scene, camera);
+  stats.end();
   requestAnimationFrame(animate);
 }
 animate();

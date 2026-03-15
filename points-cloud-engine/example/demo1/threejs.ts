@@ -19,6 +19,7 @@ import {
   Color,
   Mesh,
 } from "three";
+import Stats from "stats.js";
 
 // 获取 canvas 元素
 const canvas = document.getElementById("canvas2") as HTMLCanvasElement | null;
@@ -80,14 +81,20 @@ renderer.setSize(width, height);
 renderer.setPixelRatio(dpr);
 renderer.setClearColor(0x000000);
 
+// 性能监控
+const stats = new Stats();
+document.body.appendChild(stats.dom);
+
 // 与 core 一致：旋转量为弧度，deg 变量从 1 累加到 20 后归零
 let deg = 1;
 function animate() {
+  stats.begin();
   deg += 0.005;
   if (deg > 20) deg = 0;
   mesh1.rotation.set(deg, 2 * deg, 3 * deg);
   mesh2.rotation.set(deg, 2 * deg, 3 * deg);
   renderer.render(scene, camera);
+  stats.end();
   requestAnimationFrame(animate);
 }
 animate();

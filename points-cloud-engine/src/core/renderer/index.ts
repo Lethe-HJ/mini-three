@@ -8,6 +8,7 @@ import type { Renderer } from "./type";
 
 export function createRenderer(gl: WebGLRenderingContext): Renderer {
   gl.enable(gl.DEPTH_TEST);
+  // 这个应该在scene初始化时设置
   gl.clearColor(1, 1, 1, 1); // 与 Three.js scene.background 白色一致
   return {
     render(scene: Scene, camera: Camera) {
