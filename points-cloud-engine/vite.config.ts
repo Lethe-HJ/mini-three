@@ -7,10 +7,13 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, "src/core/index.ts"),
+      entry: {
+        webgl: resolve(__dirname, "src/core/webgl/index.ts"),
+        webgpu: resolve(__dirname, "src/core/webgpu/index.ts"),
+      },
       name: "PointsCloudEngine",
-      fileName: "points-cloud-engine",
-      formats: ["es", "umd"],
+      fileName: (_format, entryName) => `${entryName}.js`,
+      formats: ["es"],
     },
     rollupOptions: {
       external: ["three"],

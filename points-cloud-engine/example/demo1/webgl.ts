@@ -18,7 +18,7 @@ import {
   WebGLRenderer,
   Color,
   Mesh,
-} from "points-cloud-engine";
+} from "src/core/webgl";
 import Stats from "stats.js";
 
 // 获取 canvas 元素

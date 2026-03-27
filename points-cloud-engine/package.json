@@ -3,13 +3,16 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "main": "./src/core/index.ts",
-  "types": "./src/core/index.ts",
   "exports": {
-    ".": {
-      "types": "./src/core/index.ts",
-      "import": "./src/core/index.ts",
-      "default": "./src/core/index.ts"
+    "./webgl": {
+      "types": "./src/core/webgl/index.ts",
+      "import": "./src/core/webgl/index.ts",
+      "default": "./src/core/webgl/index.ts"
+    },
+    "./webgpu": {
+      "types": "./src/core/webgpu/index.ts",
+      "import": "./src/core/webgpu/index.ts",
+      "default": "./src/core/webgpu/index.ts"
     }
   },
   "scripts": {

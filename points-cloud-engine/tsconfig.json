@@ -2,7 +2,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "points-cloud-engine": ["./src/core/index.ts"]
+      "points-cloud-engine/webgl": ["src/core/webgl/index.ts"],
+      "points-cloud-engine/webgpu": ["src/core/webgpu/index.ts"]
     },
 
     "target": "ES2022",

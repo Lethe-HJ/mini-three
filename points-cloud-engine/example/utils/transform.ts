@@ -1,5 +1,5 @@
 import { PerspectiveCamera, Vector2 } from "three";
-import { PerspectiveCamera as EPerspectiveCamera } from "points-cloud-engine";
+import { PerspectiveCamera as EPerspectiveCamera } from "src/core/webgl";
 
 export interface CameraTransformConfig {
   initialDistance?: number;
@@ -25,10 +25,7 @@ export class CameraTransformController {
   private theta = 0;
   private phi = 0;
 
-  constructor(
-    camera: PerspectiveCamera | EPerspectiveCamera,
-    config: CameraTransformConfig = {},
-  ) {
+  constructor(camera: PerspectiveCamera | EPerspectiveCamera, config: CameraTransformConfig = {}) {
     this.camera = camera;
     this.initialDistance = config.initialDistance ?? 30;
     this.minDistance = config.minDistance ?? 10;
@@ -60,17 +57,12 @@ export class CameraTransformController {
     if (!this.isDragging) return;
 
     const currentMousePosition = new Vector2(event.clientX, event.clientY);
-    const mouseDelta = currentMousePosition
-      .clone()
-      .sub(this.previousMousePosition);
+    const mouseDelta = currentMousePosition.clone().sub(this.previousMousePosition);
 
     this.theta -= mouseDelta.x * this.rotationSpeed;
     this.phi += mouseDelta.y * this.rotationSpeed;
 
-    this.phi = Math.max(
-      -Math.PI / 2 + 0.1,
-      Math.min(Math.PI / 2 - 0.1, this.phi),
-    );
+    this.phi = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, this.phi));
 
     this.previousMousePosition.copy(currentMousePosition);
     this.updateCameraPosition();
@@ -88,10 +80,7 @@ export class CameraTransformController {
     event.preventDefault();
     this.cameraDistance = Math.max(
       this.minDistance,
-      Math.min(
-        this.maxDistance,
-        this.cameraDistance - event.deltaY * this.zoomSpeed,
-      ),
+      Math.min(this.maxDistance, this.cameraDistance - event.deltaY * this.zoomSpeed),
     );
     this.updateCameraPosition();
   };

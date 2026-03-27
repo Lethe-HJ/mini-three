@@ -18,7 +18,7 @@ import {
   Color,
   Mesh,
   Group,
-} from "points-cloud-engine";
+} from "src/core/webgl";
 import Stats from "stats.js";
 import { CameraTransformController } from "../utils/transform";
 
