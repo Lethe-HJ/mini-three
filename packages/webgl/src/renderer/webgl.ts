@@ -104,6 +104,18 @@ export class WebGLRenderer {
   }
 
   @timed()
+  private cullMeshesByFrustum(camera: Camera, meshes: Mesh[]): Mesh[] {
+    this.frustum.setFromProjectionMatrix(camera.matrix.vp);
+    for (let i = meshes.length - 1; i >= 0; i--) {
+      const mesh = meshes[i];
+      if (!this.frustum.intersectsSphere(mesh.getWorldBoundingSphere())) {
+        meshes.splice(i, 1);
+      }
+    }
+    return meshes;
+  }
+
+  @timed()
   private renderImmediate(scene: Scene, camera: Camera): void {
     const gl = this.gl;
     // 如果场景有背景色，使用场景的背景色
@@ -121,9 +133,7 @@ export class WebGLRenderer {
       collectMeshes(object as Mesh | Group, meshes);
     }
 
-    if (this.frustumCulling) {
-      this.frustum.setFromProjectionMatrix(camera.matrix.vp);
-    }
+    const visibleMeshes = this.frustumCulling ? this.cullMeshesByFrustum(camera, meshes) : meshes;
 
     // 按 ShaderProgram 分组排序，减少 gl.useProgram 切换
     const programOrder = new Map<ShaderProgram, number>();
@@ -136,18 +146,15 @@ export class WebGLRenderer {
       }
       return k;
     };
-    meshes.sort(
+    visibleMeshes.sort(
       (a, b) =>
         programKey(a.material.ensureShaderProgram(gl)) -
         programKey(b.material.ensureShaderProgram(gl)),
     );
 
     let lastProgram: ShaderProgram | null = null;
-    for (let i = 0; i < meshes.length; i++) {
-      const mesh = meshes[i];
-      if (this.frustumCulling && !this.frustum.intersectsSphere(mesh.getWorldBoundingSphere())) {
-        continue;
-      }
+    for (let i = 0; i < visibleMeshes.length; i++) {
+      const mesh = visibleMeshes[i];
       const sp = mesh.material.ensureShaderProgram(gl);
       if (lastProgram !== sp) {
         sp.useProgram();
