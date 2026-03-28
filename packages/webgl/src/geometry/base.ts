@@ -1,13 +1,27 @@
 import type { ShaderProgram } from "../common/program";
 import type { BoundingSphere } from "../utils/culling/frustum";
 
+/** 索引缓冲区：与 WebGL `drawElements` 的 UNSIGNED_BYTE / SHORT / INT 对应 */
+export type IndexArray = Uint8Array | Uint16Array | Uint32Array;
+
+/** 根据 `indices` 的实际类型返回 `gl.UNSIGNED_BYTE` | `UNSIGNED_SHORT` | `UNSIGNED_INT` */
+export function indexArrayToElementType(gl: WebGLRenderingContext, indices: IndexArray): number {
+  if (indices instanceof Uint32Array) {
+    return gl.UNSIGNED_INT;
+  }
+  if (indices instanceof Uint16Array) {
+    return gl.UNSIGNED_SHORT;
+  }
+  return gl.UNSIGNED_BYTE;
+}
+
 export class Geometry {
   vertices: Float32Array;
   normals: Float32Array;
-  indices: Uint8Array;
+  indices: IndexArray;
   private boundingSphere: BoundingSphere | null = null;
 
-  constructor(vertices: Float32Array, normals: Float32Array, indices: Uint8Array) {
+  constructor(vertices: Float32Array, normals: Float32Array, indices: IndexArray) {
     this.vertices = vertices;
     this.normals = normals;
     this.indices = indices;
