@@ -9,6 +9,7 @@ import {
   Color,
   Mesh,
   Group,
+  MeshLambertMaterial,
 } from "@mini-three/webgl";
 import Stats from "stats.js";
 import { CameraTransformController } from "../utils/transform";
@@ -44,10 +45,8 @@ const count = 1000;
 const spread = 20;
 for (let i = 0; i < count; i++) {
   const color = new Color().setHSL(Math.random(), 0.7, 0.5);
-  const material = new MeshPhongMaterial({
+  const material = new MeshLambertMaterial({
     color: color,
-    specular: 0xffffff,
-    shininess: 30,
   });
   const mesh = new Mesh(boxGeometry, material);
   group.add(mesh);
@@ -69,7 +68,9 @@ for (let i = 0; i < count; i++) {
 const renderer = new WebGLRenderer({ canvas, antialias: true });
 renderer.setClearColor(0x000000);
 
-const ro = new ResizeObserver(() => syncMiniThreeCanvasSize(canvas, renderer, camera));
+const ro = new ResizeObserver(() =>
+  syncMiniThreeCanvasSize(canvas, renderer, camera),
+);
 ro.observe(canvas);
 syncMiniThreeCanvasSize(canvas, renderer, camera);
 

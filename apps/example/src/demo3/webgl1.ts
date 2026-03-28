@@ -4,11 +4,11 @@ import {
   AmbientLight,
   PointLight,
   BoxGeometry,
-  MeshPhongMaterial,
   WebGLRenderer,
   Color,
   Mesh,
   Group,
+  MeshLambertMaterial,
 } from "@mini-three/webgl";
 import Stats from "stats.js";
 import { CameraTransformController } from "../utils/transform";
@@ -17,7 +17,7 @@ import { syncMiniThreeCanvasSize } from "../utils/sync-canvas-size";
 const canvas = document.getElementById("canvas") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("Canvas #canvas not found");
 
-const camera = new PerspectiveCamera(60, 1, 0.1, 1000);
+const camera = new PerspectiveCamera(60, 1, 0.1, 30);
 camera.up.set(0, 1, 0);
 const cameraController = new CameraTransformController(camera, {
   initialDistance: 30,
@@ -40,14 +40,12 @@ const boxGeometry = new BoxGeometry(0.2, 0.2, 0.2);
 const group = new Group();
 scene.add(group);
 const meshes: Mesh[] = [];
-const count = 2500;
+const count = 3000;
 const spread = 80;
 for (let i = 0; i < count; i++) {
   const color = new Color().setHSL(Math.random(), 0.7, 0.5);
-  const material = new MeshPhongMaterial({
+  const material = new MeshLambertMaterial({
     color,
-    specular: 0xffffff,
-    shininess: 30,
   });
   const mesh = new Mesh(boxGeometry, material);
   group.add(mesh);
@@ -66,25 +64,18 @@ for (let i = 0; i < count; i++) {
   meshes.push(mesh);
 }
 
-const renderer = new WebGLRenderer({ canvas, antialias: true, frustumCulling: false });
+const renderer = new WebGLRenderer({
+  canvas,
+  antialias: true,
+  frustumCulling: false,
+});
 renderer.setClearColor(0x000000);
 
-const ro = new ResizeObserver(() => syncMiniThreeCanvasSize(canvas, renderer, camera));
+const ro = new ResizeObserver(() =>
+  syncMiniThreeCanvasSize(canvas, renderer, camera),
+);
 ro.observe(canvas);
 syncMiniThreeCanvasSize(canvas, renderer, camera);
-
-const tag = document.createElement("div");
-tag.textContent = "frustumCulling: OFF";
-tag.style.position = "fixed";
-tag.style.top = "8px";
-tag.style.right = "8px";
-tag.style.padding = "4px 8px";
-tag.style.borderRadius = "4px";
-tag.style.fontSize = "12px";
-tag.style.background = "rgba(255, 80, 80, 0.85)";
-tag.style.color = "#fff";
-tag.style.zIndex = "10";
-document.body.appendChild(tag);
 
 const stats = new Stats();
 document.body.appendChild(stats.dom);

@@ -16,8 +16,8 @@ import { syncMiniThreeCanvasSize } from "../utils/sync-canvas-size";
 const canvas = document.getElementById("canvas") as HTMLCanvasElement | null;
 if (!canvas) throw new Error("Canvas #canvas not found");
 
-const camera = new PerspectiveCamera(45, 1, 0.1, 20);
-camera.position.set(1, 1, 10);
+const camera = new PerspectiveCamera(45, 1, 0.1, 30);
+camera.position.set(1, 1, 20);
 camera.lookAt(1, 0, 0);
 camera.up.set(0, 1, 0);
 
@@ -49,7 +49,9 @@ scene.add(mesh2);
 const renderer = new WebGLRenderer({ canvas, antialias: true });
 renderer.setClearColor(0x000000);
 
-const ro = new ResizeObserver(() => syncMiniThreeCanvasSize(canvas, renderer, camera));
+const ro = new ResizeObserver(() =>
+  syncMiniThreeCanvasSize(canvas, renderer, camera),
+);
 ro.observe(canvas);
 syncMiniThreeCanvasSize(canvas, renderer, camera);
 

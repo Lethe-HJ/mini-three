@@ -224,16 +224,26 @@ export class DemoContent extends LitElement {
     return `demo-container ${this.horizontalLayout ? "horizontal" : "vertical"}`;
   }
 
+  private panelTitles(): { left: string; right: string } {
+    const d = this.demoInfo;
+    return {
+      left: d?.leftTitle ?? "—",
+      right: d?.rightTitle ?? "—",
+    };
+  }
+
   render() {
+    const { left: leftTitle, right: rightTitle } = this.panelTitles();
+
     if (this.loading) {
       return html`
         <div class="${this.containerClass()}">
           <div class="demo-card">
-            <div class="demo-title">WebGL Implementation</div>
+            <div class="demo-title">${leftTitle}</div>
             <div class="loading">Loading...</div>
           </div>
           <div class="demo-card">
-            <div class="demo-title">Three.js Standard</div>
+            <div class="demo-title">${rightTitle}</div>
             <div class="loading">Loading...</div>
           </div>
         </div>
@@ -242,11 +252,11 @@ export class DemoContent extends LitElement {
     if (this.error) {
       return html`<div class="${this.containerClass()}">
         <div class="demo-card">
-          <div class="demo-title">WebGL Implementation</div>
+          <div class="demo-title">${leftTitle}</div>
           <div class="error">${this.error}</div>
         </div>
         <div class="demo-card">
-          <div class="demo-title">Three.js Standard</div>
+          <div class="demo-title">${rightTitle}</div>
           <div class="error">${this.error}</div>
         </div>
       </div>`;
@@ -255,11 +265,11 @@ export class DemoContent extends LitElement {
       return html`
         <div class="${this.containerClass()}">
           <div class="demo-card">
-            <div class="demo-title">WebGL Implementation</div>
+            <div class="demo-title">${leftTitle}</div>
             <div class="error">No demo info loaded</div>
           </div>
           <div class="demo-card">
-            <div class="demo-title">Three.js Standard</div>
+            <div class="demo-title">${rightTitle}</div>
             <div class="error">No demo info loaded</div>
           </div>
         </div>
@@ -275,15 +285,15 @@ export class DemoContent extends LitElement {
     );
     return html`<div class="${this.containerClass()}">
       <div class="demo-card">
-        <div class="demo-title">WebGL Implementation</div>
+        <div class="demo-title">${leftTitle}</div>
         <div class="iframe-container">
-          <iframe .srcdoc=${engineHtml} title="WebGL Implementation"></iframe>
+          <iframe .srcdoc=${engineHtml} title=${leftTitle}></iframe>
         </div>
       </div>
       <div class="demo-card">
-        <div class="demo-title">Three.js Standard</div>
+        <div class="demo-title">${rightTitle}</div>
         <div class="iframe-container">
-          <iframe .srcdoc=${threejsHtml} title="Three.js Standard"></iframe>
+          <iframe .srcdoc=${threejsHtml} title=${rightTitle}></iframe>
         </div>
       </div>
     </div>`;

@@ -10,6 +10,10 @@ export interface DemoInfo {
   name: string;
   description: string;
   showInMenu: boolean;
+  /** 左栏 iframe 对应脚本 {@link leftFile} 的卡片标题 */
+  leftTitle: string;
+  /** 右栏 iframe 对应脚本 {@link rightFile} 的卡片标题 */
+  rightTitle: string;
   leftFile: string;
   rightFile: string;
   init: () => Promise<void>;
