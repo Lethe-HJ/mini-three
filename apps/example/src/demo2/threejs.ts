@@ -4,7 +4,6 @@ import {
   AmbientLight,
   PointLight,
   BoxGeometry,
-  MeshPhongMaterial,
   WebGLRenderer,
   Color,
   Mesh,
@@ -63,32 +62,28 @@ renderer.setClearColor(0x000000);
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
-function _render() {
-  let rafId: number | null = null;
-  return function () {
-    if (rafId !== null) return;
-    rafId = requestAnimationFrame(() => {
-      rafId = null;
-      stats.begin();
-      renderer.render(scene, camera);
-      stats.end();
-    });
-  };
-}
-
-const render = _render();
-
 const cameraController = new CameraTransformController(camera, {
   initialDistance: 30,
   minDistance: 10,
   maxDistance: 100,
   rotationSpeed: 0.002,
   zoomSpeed: 0.01,
-  onChange: render,
+  autoRotateSpeed: 0.25,
 });
 cameraController.bindEvents(canvas);
+
+let lastFrameTime = performance.now();
+function loop(now: number) {
+  const dt = Math.min(0.1, (now - lastFrameTime) / 1000);
+  lastFrameTime = now;
+  cameraController.tick(dt);
+  stats.begin();
+  renderer.render(scene, camera);
+  stats.end();
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
 
 const ro = new ResizeObserver(() => syncThreeCanvasSize(canvas, renderer, camera));
 ro.observe(canvas);
 syncThreeCanvasSize(canvas, renderer, camera);
-render();

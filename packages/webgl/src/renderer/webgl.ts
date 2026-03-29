@@ -113,7 +113,7 @@ export class WebGLRenderer {
     });
   }
 
-  @timed()
+  // @timed()
   private cullMeshesByFrustum(camera: Camera, meshes: Mesh[]): Mesh[] {
     this.frustum.setFromProjectionMatrix(camera.matrix.vp);
     const output: Mesh[] = [];
@@ -126,7 +126,7 @@ export class WebGLRenderer {
     return output;
   }
 
-  @timed()
+  // @timed()
   render(scene: Scene, camera: Camera): void {
     const gl = this.gl;
     if (scene.background) {
