@@ -31,7 +31,7 @@ scene.add(pointLight);
 const boxGeometry = new BoxGeometry(0.2, 0.2, 0.2);
 const group = new Group();
 scene.add(group);
-const count = 1000;
+const count = 10000;
 const spread = 80;
 for (let i = 0; i < count; i++) {
   const color = new Color().setHSL(Math.random(), 0.7, 0.5);

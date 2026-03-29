@@ -38,7 +38,7 @@ export class AmbientLight {
     return this;
   }
 
-  attach(gl: WebGLRenderingContext, sp: ShaderProgram): void {
+  attach(gl: WebGL2RenderingContext, sp: ShaderProgram): void {
     const loc = sp.getUniformLocation("u_ambientLightColor");
     if (loc) {
       const colorArray = this._color.toArray();

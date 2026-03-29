@@ -1,26 +1,57 @@
+import { phongShader, ShaderSource } from "../common/shader";
 import { Color } from "../common/color/color";
-import { Material } from "./base";
-import { MaterialType } from "./type";
+import { Material, MaterialConfig } from "./base";
 
-interface MeshPhongMaterialParameters {
-  color?: Color | number;
+export interface MeshPhongMaterialConfig extends MaterialConfig {
+  color: Color | number;
   specular?: Color | number;
   shininess?: number;
 }
 
 export class MeshPhongMaterial extends Material {
-  constructor(parameters: MeshPhongMaterialParameters = {}) {
-    if (typeof parameters.color === "number") {
-      parameters.color = Color.fromNumber(parameters.color);
+  private _specular?: Color;
+  constructor(config: MeshPhongMaterialConfig) {
+    if (typeof config.specular === "number") {
+      config.specular = Color.fromNumber(config.specular);
     }
-    if (typeof parameters.specular === "number") {
-      parameters.specular = Color.fromNumber(parameters.specular);
+    super(config);
+  }
+
+  get specular(): Color | undefined {
+    return this._specular;
+  }
+
+  set specular(value: Color | undefined) {
+    this._specular = value;
+  }
+
+  init() {
+    this.initShader();
+    this.initColor();
+    this.initSpecular();
+  }
+
+  initShader() {
+    this.shaderSource = ShaderSource.create(phongShader.vertex, phongShader.fragment);
+  }
+
+  initSpecular() {
+    const config = this.config;
+    if (config.specular instanceof Color) {
+      this._specular = config.specular;
+    } else {
+      this._specular = new Color(config.specular);
     }
-    super({
-      type: MaterialType.Phong,
-      color: parameters.color ?? Color.fromNumber(0xffffff),
-      specular: parameters.specular ?? Color.fromNumber(0x111111),
-      shininess: parameters.shininess ?? 30,
-    });
+  }
+
+  attach(gl: WebGL2RenderingContext, skipUseProgram = false): void {
+    super.attach(gl, skipUseProgram);
+    const sp = this.ensureShaderProgram(gl);
+    if (this.config.shininess != null) {
+      const locShininess = sp.getUniformLocation("u_material.shininess");
+      if (locShininess) gl.uniform1f(locShininess, this.config.shininess);
+      const locSpecular = sp.getUniformLocation("u_materialSpecular");
+      if (locSpecular && this._specular) gl.uniform3fv(locSpecular, this._specular.toArray());
+    }
   }
 }

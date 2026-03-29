@@ -20,6 +20,7 @@
     "fix": "sh scripts/fix.sh"
   },
   "dependencies": {
-    "@mini-three/types": "workspace:*"
+    "@mini-three/types": "workspace:*",
+    "@plutotcool/glsl-bundler": "^1.4.1"
   }
 }

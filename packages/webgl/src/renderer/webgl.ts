@@ -9,21 +9,29 @@ import type { ShaderProgram } from "../common/program";
 import { Frustum } from "../utils/culling/frustum";
 import { timed } from "../utils/decorators";
 
+/** 仅收集 Mesh，不更新矩阵（矩阵由顶层 updateTopLevelModelMatrices 已算好） */
 const collectMeshes = (obj: Mesh | Group, meshes: Mesh[]) => {
   if (obj.name === "Mesh") {
     meshes.push(obj as Mesh);
-    (obj as Mesh).updateModelMatrix();
   } else if (obj.name === "Group") {
-    (obj as Group).updateModelMatrix();
-    for (let i = 0; i < (obj as Group).children.length; i++) {
-      const child = (obj as Group).children[i];
-      collectMeshes(child, meshes);
+    const g = obj as Group;
+    for (let i = 0; i < g.children.length; i++) {
+      collectMeshes(g.children[i] as Mesh | Group, meshes);
     }
   }
 };
 
+/** 只对场景顶层子节点更新世界矩阵：Mesh 一次；Group 内部会递归子树 */
+const updateTopLevelModelMatrices = (obj: Mesh | Group) => {
+  if (obj.name === "Mesh") {
+    (obj as Mesh).updateModelMatrix();
+  } else if (obj.name === "Group") {
+    (obj as Group).updateModelMatrix();
+  }
+};
+
 export class WebGLRenderer {
-  private gl: WebGLRenderingContext;
+  private gl: WebGL2RenderingContext;
   private pixelRatio: number = 1;
   frustumCulling: boolean;
   private frustum: Frustum = new Frustum();
@@ -31,9 +39,9 @@ export class WebGLRenderer {
   private pendingScene: Scene | null = null;
   private pendingCamera: Camera | null = null;
 
-  constructor(config: RendererConfig | WebGLRenderingContext) {
-    let gl: WebGLRenderingContext | null = null;
-    if (config instanceof WebGLRenderingContext) {
+  constructor(config: RendererConfig | WebGL2RenderingContext) {
+    let gl: WebGL2RenderingContext | null = null;
+    if (config instanceof WebGL2RenderingContext) {
       gl = config;
       this.frustumCulling = true;
     } else {
@@ -41,9 +49,11 @@ export class WebGLRenderer {
       if (!canvas) {
         throw new Error("Canvas is required");
       }
-      gl = canvas.getContext("webgl");
+      gl = canvas.getContext("webgl2", {
+        antialias: config.antialias ?? true,
+      });
       if (!gl) {
-        throw new Error("WebGL not supported");
+        throw new Error("WebGL2 not supported");
       }
       this.frustumCulling = config.frustumCulling ?? true;
     }
@@ -85,7 +95,7 @@ export class WebGLRenderer {
   /**
    * 同一帧内多次调用会合并为一次实际绘制（通过 requestAnimationFrame 节流）。
    */
-  render(scene: Scene, camera: Camera): void {
+  scheduleRender(scene: Scene, camera: Camera): void {
     this.pendingScene = scene;
     this.pendingCamera = camera;
     if (this.renderRafId !== null) {
@@ -98,7 +108,7 @@ export class WebGLRenderer {
       this.pendingScene = null;
       this.pendingCamera = null;
       if (s && c) {
-        this.renderImmediate(s, c);
+        this.render(s, c);
       }
     });
   }
@@ -106,72 +116,67 @@ export class WebGLRenderer {
   @timed()
   private cullMeshesByFrustum(camera: Camera, meshes: Mesh[]): Mesh[] {
     this.frustum.setFromProjectionMatrix(camera.matrix.vp);
-    for (let i = meshes.length - 1; i >= 0; i--) {
+    const output: Mesh[] = [];
+    for (let i = 0; i < meshes.length; i++) {
       const mesh = meshes[i];
-      if (!this.frustum.intersectsSphere(mesh.getWorldBoundingSphere())) {
-        meshes.splice(i, 1);
+      if (this.frustum.intersectsSphere(mesh.getWorldBoundingSphere())) {
+        output.push(mesh);
       }
     }
-    return meshes;
+    return output;
   }
 
   @timed()
-  private renderImmediate(scene: Scene, camera: Camera): void {
+  render(scene: Scene, camera: Camera): void {
     const gl = this.gl;
-    // 如果场景有背景色，使用场景的背景色
     if (scene.background) {
-      const colorArray = scene.background.toArray();
-      gl.clearColor(colorArray[0], colorArray[1], colorArray[2], 1);
+      const bg = scene.background;
+      gl.clearColor(bg.r, bg.g, bg.b, 1);
     }
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    // 动态收集所有 mesh
     const meshes: Mesh[] = [];
-
     for (let i = 0; i < scene.children.length; i++) {
-      const object = scene.children[i];
-      collectMeshes(object as Mesh | Group, meshes);
+      const object = scene.children[i] as Mesh | Group;
+      // 更新顶级节点的模型矩阵
+      updateTopLevelModelMatrices(object);
+      // 收集所有Mesh 只收集叶子节点
+      collectMeshes(scene.children[i] as Mesh | Group, meshes);
     }
 
+    // 剔除视锥体外的Mesh
     const visibleMeshes = this.frustumCulling ? this.cullMeshesByFrustum(camera, meshes) : meshes;
 
-    // 按 ShaderProgram 分组排序，减少 gl.useProgram 切换
-    const programOrder = new Map<ShaderProgram, number>();
-    let orderNext = 0;
-    const programKey = (sp: ShaderProgram) => {
-      let k = programOrder.get(sp);
-      if (k === undefined) {
-        k = orderNext++;
-        programOrder.set(sp, k);
-      }
-      return k;
-    };
-    visibleMeshes.sort(
-      (a, b) =>
-        programKey(a.material.ensureShaderProgram(gl)) -
-        programKey(b.material.ensureShaderProgram(gl)),
-    );
-
-    let lastProgram: ShaderProgram | null = null;
+    // 按 ShaderProgram 分组 后续同一组内的连续渲染, 这样可以节省program切换的开销
+    const groupByProgram = new Map<ShaderProgram, Mesh[]>();
     for (let i = 0; i < visibleMeshes.length; i++) {
       const mesh = visibleMeshes[i];
       const sp = mesh.material.ensureShaderProgram(gl);
-      if (lastProgram !== sp) {
-        sp.useProgram();
-        lastProgram = sp;
+      let batch = groupByProgram.get(sp);
+      if (!batch) {
+        batch = [];
+        groupByProgram.set(sp, batch);
       }
-      mesh.attach(gl, true);
-      mesh.updateMatrix(gl, camera);
+      batch.push(mesh);
+    }
+
+    // 遍历 program 分组 并进行渲染
+    for (const [sp, batch] of groupByProgram) {
+      sp.useProgram();
       for (let j = 0; j < scene.objects.length; j++) {
         const obj = scene.objects[j];
-        // scene.objects 里只有光源会 attach(gl, sp)；Mesh.attach 第二参为 boolean，需单独收窄
         if (obj.name === "AmbientLight" || obj.name === "PointLight") {
           obj.attach(gl, sp);
         }
       }
-      camera.attach(gl, sp);
-      const idx = mesh.geometry.indices;
-      gl.drawElements(gl.TRIANGLES, idx.length, indexArrayToElementType(gl, idx), 0);
+      camera.attach(gl, sp, true);
+      for (let i = 0; i < batch.length; i++) {
+        const mesh = batch[i];
+        mesh.attach(gl, true);
+        mesh.updateMatrix(gl, camera);
+        const idx = mesh.geometry.indices;
+        gl.drawElements(gl.TRIANGLES, idx.length, indexArrayToElementType(gl, idx), 0);
+      }
     }
   }
 }

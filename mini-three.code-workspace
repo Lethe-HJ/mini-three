@@ -4,12 +4,10 @@
       "path": ".",
     },
   ],
-  "settings": {},
+  "settings": {
+    "cSpell.words": ["glslify"],
+  },
   "extensions": {
-    "recommendations": [
-      "runem.lit-plugin",
-      "boyswan.glsl-literal",
-      "oxc.oxc-vscode",
-    ],
+    "recommendations": ["runem.lit-plugin", "oxc.oxc-vscode"],
   },
 }

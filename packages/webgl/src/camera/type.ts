@@ -100,8 +100,11 @@ export class Camera {
     };
   }
 
-  attach(gl: WebGLRenderingContext, sp: ShaderProgram): void {
-    sp.useProgram();
+  /**
+   * @param skipUseProgram 为 true 时不调用 `useProgram`（调用方已绑定当前 program，例如 WebGLRenderer）
+   */
+  attach(gl: WebGL2RenderingContext, sp: ShaderProgram, skipUseProgram = false): void {
+    if (!skipUseProgram) sp.useProgram();
     const loc = sp.getUniformLocation("u_cameraPosition");
     if (loc) gl.uniform3fv(loc, this._position.toArray());
   }

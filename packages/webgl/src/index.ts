@@ -5,7 +5,7 @@ import { Geometry, BoxGeometry } from "./geometry";
 import { Group } from "./group";
 import { AmbientLight } from "./light/ambient";
 import { PointLight } from "./light/point";
-import { Material, MaterialType, MeshPhongMaterial, MeshLambertMaterial } from "./material";
+import { Material, MeshPhongMaterial, MeshLambertMaterial } from "./material";
 import { Mesh } from "./mesh";
 import { WebGLRenderer } from "./renderer";
 import { Scene } from "./scene";
@@ -23,7 +23,6 @@ export {
   AmbientLight,
   PointLight,
   Material,
-  MaterialType,
   MeshPhongMaterial,
   MeshLambertMaterial,
   Mesh,

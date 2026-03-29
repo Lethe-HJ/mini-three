@@ -1,11 +1,12 @@
 import type { ShaderProgram } from "../common/program";
 import type { BoundingSphere } from "../utils/culling/frustum";
+import { createIbo, createVao, createVbo, deleteIbo, deleteVao, deleteVbo } from "./gpu";
 
 /** 索引缓冲区：与 WebGL `drawElements` 的 UNSIGNED_BYTE / SHORT / INT 对应 */
 export type IndexArray = Uint8Array | Uint16Array | Uint32Array;
 
 /** 根据 `indices` 的实际类型返回 `gl.UNSIGNED_BYTE` | `UNSIGNED_SHORT` | `UNSIGNED_INT` */
-export function indexArrayToElementType(gl: WebGLRenderingContext, indices: IndexArray): number {
+export function indexArrayToElementType(gl: WebGL2RenderingContext, indices: IndexArray): number {
   if (indices instanceof Uint32Array) {
     return gl.UNSIGNED_INT;
   }
@@ -20,6 +21,20 @@ export class Geometry {
   normals: Float32Array;
   indices: IndexArray;
   private boundingSphere: BoundingSphere | null = null;
+  /**
+   * GPU 侧顶点/索引缓冲（即 VBO + IBO）：`ARRAY_BUFFER` ×2 + `ELEMENT_ARRAY_BUFFER` ×1。
+   * 首次上传后常驻显存，避免每帧 `createBuffer` / `bufferData`。
+   */
+  private gpuObject:
+    | {
+        gl: WebGL2RenderingContext;
+        vertices: WebGLBuffer;
+        normals: WebGLBuffer;
+        indices: WebGLBuffer;
+      }
+    | undefined;
+  /** 按 ShaderProgram 缓存 VAO（属性指针 + 元素缓冲绑定） */
+  private vaoByProgram = new Map<ShaderProgram, WebGLVertexArrayObject>();
 
   constructor(vertices: Float32Array, normals: Float32Array, indices: IndexArray) {
     this.vertices = vertices;
@@ -35,24 +50,43 @@ export class Geometry {
     return this.boundingSphere;
   }
 
-  attach(gl: WebGLRenderingContext, sp: ShaderProgram): void {
+  attach(gl: WebGL2RenderingContext, sp: ShaderProgram): void {
     const a_positionLocation = sp.getAttribLocation("a_position");
-    const vertices_buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, vertices_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.vertices, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(a_positionLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(a_positionLocation);
-
     const a_normalLocation = sp.getAttribLocation("a_normal");
-    const normal_buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, normal_buffer);
-    gl.bufferData(gl.ARRAY_BUFFER, this.normals, gl.STATIC_DRAW);
-    gl.vertexAttribPointer(a_normalLocation, 3, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray(a_normalLocation);
 
-    const indices_buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indices_buffer);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, this.indices, gl.STATIC_DRAW);
+    if (!this.gpuObject || this.gpuObject.gl !== gl) {
+      if (this.gpuObject) {
+        const _gl = this.gpuObject.gl;
+        for (const vao of this.vaoByProgram.values()) {
+          deleteVao(_gl, vao);
+        }
+        this.vaoByProgram.clear();
+        if (_gl !== gl) {
+          deleteVbo(_gl, this.gpuObject.vertices);
+          deleteVbo(_gl, this.gpuObject.normals);
+          deleteIbo(_gl, this.gpuObject.indices);
+        }
+      }
+      this.gpuObject = {
+        gl,
+        vertices: createVbo(gl, this.vertices),
+        normals: createVbo(gl, this.normals),
+        indices: createIbo(gl, this.indices),
+      };
+    }
+
+    const gpuObject = this.gpuObject;
+    let vao = this.vaoByProgram.get(sp);
+    if (!vao) {
+      const attribs = [
+        { buffer: gpuObject.vertices, location: a_positionLocation, size: 3, type: gl.FLOAT },
+        { buffer: gpuObject.normals, location: a_normalLocation, size: 3, type: gl.FLOAT },
+      ];
+      const created = createVao(gl, attribs, gpuObject.indices);
+      this.vaoByProgram.set(sp, created);
+      vao = created;
+    }
+    gl.bindVertexArray(vao);
   }
 
   private computeBoundingSphere(): BoundingSphere {

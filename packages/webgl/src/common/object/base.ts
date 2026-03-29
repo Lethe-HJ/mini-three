@@ -13,7 +13,7 @@ export class BaseObject {
     this.scale = new Vector3(1, 1, 1);
   }
 
-  attach?(gl: WebGLRenderingContext, skipUseProgram: boolean): void;
+  attach?(gl: WebGL2RenderingContext, skipUseProgram: boolean): void;
 
   setPosition(x: number, y: number, z: number): this {
     this.position.set(x, y, z);

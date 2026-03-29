@@ -91,7 +91,7 @@ export class PointLight {
     return this;
   }
 
-  attach(gl: WebGLRenderingContext, sp: ShaderProgram): void {
+  attach(gl: WebGL2RenderingContext, sp: ShaderProgram): void {
     const locPos = sp.getUniformLocation("u_pointLight.position");
     const locColor = sp.getUniformLocation("u_pointLight.color");
     const locC = sp.getUniformLocation("u_pointLight.constant");

@@ -1,98 +1,107 @@
+import { ShaderSource } from "../shader";
+import { type ShaderSourceUnique } from "../shader/source";
+import { Brand } from "../../utils/type/brand";
+import { getShortUnique } from "../../utils/unique";
+
+export type GLUnique = Brand<string, "GLUnique">;
+
+export type ShaderProgramUnique = `${GLUnique}-${ShaderSourceUnique}`;
+
 export class ShaderProgram {
   private static readonly instances = new WeakMap<
-    WebGLRenderingContext,
-    Map<number, ShaderProgram>
+    WebGL2RenderingContext,
+    Map<ShaderProgramUnique, ShaderProgram>
   >();
 
-  private static readonly currentProgramByGl = new WeakMap<
-    WebGLRenderingContext,
+  /** 当前使用的program */
+  private static readonly currentProgram = new WeakMap<
+    WebGL2RenderingContext,
     WebGLProgram | null
   >();
 
-  readonly gl: WebGLRenderingContext;
+  private static readonly glUniqueMap = new WeakMap<WebGL2RenderingContext, GLUnique>();
+
+  readonly gl: WebGL2RenderingContext;
   private readonly glProgram: WebGLProgram;
-  unique: number = -1;
+  private readonly uniformLocCache = new Map<string, WebGLUniformLocation | null>();
+
+  static getUnique(glUnique: GLUnique, source: ShaderSource): ShaderProgramUnique {
+    return `${glUnique}-${source.unique}` as ShaderProgramUnique;
+  }
 
   useProgram(): void {
-    const last = ShaderProgram.currentProgramByGl.get(this.gl);
+    const last = ShaderProgram.currentProgram.get(this.gl);
     // 微小优化 如果上一次的program和当前的program一致，在驱动层面仍然会return
     // 但是直接在js代码层面直接return 性能更好
     if (last === this.glProgram) return;
     this.gl.useProgram(this.glProgram);
-    ShaderProgram.currentProgramByGl.set(this.gl, this.glProgram);
+    ShaderProgram.currentProgram.set(this.gl, this.glProgram);
     if (__DEBUG__) {
       console.log(`gl.useProgram, unique: ${this.unique}`);
     }
   }
 
   getUniformLocation(name: string): WebGLUniformLocation | null {
-    return this.gl.getUniformLocation(this.glProgram, name);
+    // 缓存uniform位置 避免每次都调用gl.getUniformLocation查询位置
+    const cache = this.uniformLocCache.get(name);
+    if (cache !== undefined) return cache;
+    const loc = this.gl.getUniformLocation(this.glProgram, name);
+    this.uniformLocCache.set(name, loc);
+    return loc;
   }
 
   getAttribLocation(name: string): number {
     return this.gl.getAttribLocation(this.glProgram, name);
   }
 
-  static create(
-    gl: WebGLRenderingContext,
-    vertexShaderSource: string,
-    fragmentShaderSource: string,
-  ): ShaderProgram {
-    const key = ShaderProgram.sourceKey(vertexShaderSource, fragmentShaderSource);
+  static create(gl: WebGL2RenderingContext, source: ShaderSource): ShaderProgram {
+    const glUniqueMap = ShaderProgram.glUniqueMap;
+    if (!glUniqueMap.has(gl)) {
+      glUniqueMap.set(gl, getShortUnique() as GLUnique);
+    }
+    const glUnique = glUniqueMap.get(gl)!;
+    const unique = ShaderProgram.getUnique(glUnique, source);
     let perGl = ShaderProgram.instances.get(gl);
     if (!perGl) {
       perGl = new Map();
       ShaderProgram.instances.set(gl, perGl);
     }
-    const hit = perGl.get(key);
+    const hit = perGl.get(unique);
     if (hit) {
       return hit;
     }
-    const sp = new ShaderProgram(gl, vertexShaderSource, fragmentShaderSource);
-    perGl.set(key, sp);
-    sp.unique = key;
+    const sp = new ShaderProgram(gl, source, unique);
+    perGl.set(unique, sp);
     return sp;
   }
 
+  private unique: ShaderProgramUnique;
+
   private constructor(
-    gl: WebGLRenderingContext,
-    vertexShaderSource: string,
-    fragmentShaderSource: string,
+    gl: WebGL2RenderingContext,
+    source: ShaderSource,
+    unique: ShaderProgramUnique,
   ) {
     this.gl = gl;
-    const program = this.buildProgram(vertexShaderSource, fragmentShaderSource);
+    this.unique = unique;
+    const { vertex: vertexShaderSource, fragment: fragmentShaderSource } = source;
+    const program = this.buildProgram(vertexShaderSource.code, fragmentShaderSource.code);
     if (!program) {
       throw new Error("Failed to create shader program");
     }
     this.glProgram = program;
   }
 
-  private static sourceKey(vertex: string, fragment: string): number {
-    let h = 2166136261;
-    const p = 16777619;
-    for (let i = 0; i < vertex.length; i++) {
-      h ^= vertex.charCodeAt(i);
-      h = Math.imul(h, p);
-    }
-    h ^= 0xff;
-    h = Math.imul(h, p);
-    for (let i = 0; i < fragment.length; i++) {
-      h ^= fragment.charCodeAt(i);
-      h = Math.imul(h, p);
-    }
-    h ^= vertex.length;
-    h = Math.imul(h, p);
-    h ^= fragment.length;
-    return Math.imul(h, p) >>> 0;
-  }
-
   private buildProgram(
     vertexShaderSource: string,
     fragmentShaderSource: string,
   ): WebGLProgram | null {
-    const vertexShader = this.createShader(this.gl.VERTEX_SHADER);
-    const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER);
+    const gl = this.gl;
+    const vertexShader = this.createShader(gl.VERTEX_SHADER);
+    const fragmentShader = this.createShader(gl.FRAGMENT_SHADER);
     if (!vertexShader || !fragmentShader) {
+      if (vertexShader) gl.deleteShader(vertexShader);
+      if (fragmentShader) gl.deleteShader(fragmentShader);
       return null;
     }
 
@@ -100,19 +109,28 @@ export class ShaderProgram {
     this.setShaderSource(fragmentShader, fragmentShaderSource);
 
     if (!this.compileShader(vertexShader, "vertex")) {
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
       return null;
     }
     if (!this.compileShader(fragmentShader, "fragment")) {
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
       return null;
     }
 
     const program = this.createProgram();
     if (!program) {
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
       return null;
     }
 
     this.attachShaders(program, vertexShader, fragmentShader);
     if (!this.verifyLink(program)) {
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
       return null;
     }
 

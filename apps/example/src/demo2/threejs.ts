@@ -20,14 +20,6 @@ if (!canvas) throw new Error("Canvas #canvas not found");
 
 const camera = new PerspectiveCamera(60, 1, 0.1, 1000);
 camera.up.set(0, 1, 0);
-const cameraController = new CameraTransformController(camera, {
-  initialDistance: 30,
-  minDistance: 10,
-  maxDistance: 100,
-  rotationSpeed: 0.002,
-  zoomSpeed: 0.01,
-});
-cameraController.bindEvents(canvas);
 
 const scene = new Scene();
 scene.background = new Color(0xffffffff);
@@ -41,7 +33,7 @@ const boxGeometry = new BoxGeometry(0.2, 0.2, 0.2);
 const group = new Group();
 scene.add(group);
 const meshes: Mesh[] = [];
-const count = 1000;
+const count = 10000;
 const spread = 20;
 for (let i = 0; i < count; i++) {
   const color = new Color().setHSL(Math.random(), 0.7, 0.5);
@@ -68,23 +60,35 @@ for (let i = 0; i < count; i++) {
 const renderer = new WebGLRenderer({ canvas, antialias: true });
 renderer.setClearColor(0x000000);
 
-const ro = new ResizeObserver(() => syncThreeCanvasSize(canvas, renderer, camera));
-ro.observe(canvas);
-syncThreeCanvasSize(canvas, renderer, camera);
-
 const stats = new Stats();
 document.body.appendChild(stats.dom);
 
-function animate() {
-  stats.begin();
-  meshes.forEach((mesh, index) => {
-    const speed = 0.5 + (index % 5) * 0.01;
-    mesh.rotation.x += 0.01 * speed;
-    mesh.rotation.y += 0.02 * speed;
-    mesh.rotation.z += 0.005 * speed;
-  });
-  renderer.render(scene, camera);
-  stats.end();
-  requestAnimationFrame(animate);
+function _render() {
+  let rafId: number | null = null;
+  return function () {
+    if (rafId !== null) return;
+    rafId = requestAnimationFrame(() => {
+      rafId = null;
+      stats.begin();
+      renderer.render(scene, camera);
+      stats.end();
+    });
+  };
 }
-animate();
+
+const render = _render();
+
+const cameraController = new CameraTransformController(camera, {
+  initialDistance: 30,
+  minDistance: 10,
+  maxDistance: 100,
+  rotationSpeed: 0.002,
+  zoomSpeed: 0.01,
+  onChange: render,
+});
+cameraController.bindEvents(canvas);
+
+const ro = new ResizeObserver(() => syncThreeCanvasSize(canvas, renderer, camera));
+ro.observe(canvas);
+syncThreeCanvasSize(canvas, renderer, camera);
+render();

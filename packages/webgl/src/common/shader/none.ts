@@ -1,9 +1,10 @@
-import type { ShaderSource } from "./type";
+import { ShaderSource } from "./source";
 import { OUTPUT_SCALE } from "./config";
+import { frag, vert } from "./base";
 
 // ============ Shaders ============
-export const noneShader: ShaderSource = {
-  vertex: /*glsl */ `
+export const noneShader = ShaderSource.create(
+  vert`
     attribute vec4 a_position;
     uniform mat4 u_mvpMatrix;
     uniform vec3 u_materialColor;
@@ -17,7 +18,7 @@ export const noneShader: ShaderSource = {
     gl_Position =  vertexPosition;
     }
 `,
-  fragment: /*glsl */ `
+  frag`
     precision highp float;
     varying vec4 v_color;
     #define OUTPUT_SCALE ${OUTPUT_SCALE}
@@ -27,4 +28,4 @@ export const noneShader: ShaderSource = {
       gl_FragColor = vec4(linearToSrgb(v_color.rgb * OUTPUT_SCALE), v_color.a);
     }
   `,
-};
+);

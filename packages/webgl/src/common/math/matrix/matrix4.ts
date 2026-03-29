@@ -38,11 +38,11 @@ export const m4 = {
   translation(tx: number, ty: number, tz: number): number[] {
     // prettier-ignore
     return [
-        1,  0,  0,  0,
-        0,  1,  0,  0,
-        0,  0,  1,  0,
-        tx, ty, tz, 1,
-      ];
+      1,  0,  0,  0,
+      0,  1,  0,  0,
+      0,  0,  1,  0,
+      tx, ty, tz, 1,
+    ];
   },
 
   xRotation(angleInRadians: number): number[] {
@@ -50,11 +50,11 @@ export const m4 = {
     const s = Math.sin(angleInRadians);
     // prettier-ignore
     return [
-        1, 0, 0, 0,
-        0, c, s, 0,
-        0, -s, c, 0,
-        0, 0, 0, 1,
-      ];
+      1,  0, 0, 0,
+      0,  c, s, 0,
+      0, -s, c, 0,
+      0,  0, 0, 1,
+    ];
   },
 
   yRotation(angleInRadians: number): number[] {

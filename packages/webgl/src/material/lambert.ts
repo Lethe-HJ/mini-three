@@ -1,19 +1,22 @@
+import { lambertShader, ShaderSource } from "../common/shader";
 import { Color } from "../common/color/color";
 import { Material } from "./base";
-import { MaterialType } from "./type";
 
-interface MeshLambertMaterialParameters {
-  color?: Color | string | number;
+export interface MeshLambertMaterialConfig {
+  color: Color | number;
 }
 
 export class MeshLambertMaterial extends Material {
-  constructor(parameters: MeshLambertMaterialParameters = {}) {
-    if (typeof parameters.color === "number") {
-      parameters.color = Color.fromNumber(parameters.color);
-    }
-    super({
-      type: MaterialType.Lambert,
-      color: parameters.color ?? Color.fromNumber(0xffffff),
-    });
+  constructor(config: MeshLambertMaterialConfig) {
+    super(config);
+  }
+
+  init() {
+    this.initShader();
+    this.initColor();
+  }
+
+  initShader() {
+    this.shaderSource = ShaderSource.create(lambertShader.vertex, lambertShader.fragment);
   }
 }
