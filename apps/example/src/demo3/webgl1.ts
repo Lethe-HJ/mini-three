@@ -57,7 +57,7 @@ for (let i = 0; i < count; i++) {
 const renderer = new WebGLRenderer({
   canvas,
   antialias: true,
-  frustumCulling: false,
+  frustumCulling: true,
 });
 renderer.setClearColor(0x000000);
 

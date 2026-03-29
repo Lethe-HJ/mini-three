@@ -1,3 +1,4 @@
+import { GITHUB_SOURCE_APPS_EXAMPLE_SRC } from "../config";
 import type { DemoExperiment } from "../layout";
 
 /** 在 `index.ts` 里写的简表；`file` 写 `() => import("./xxx")` */
@@ -12,11 +13,20 @@ export type ExperimentInput = {
   module?: string;
 };
 
-export function finalizeExperiments(meta: ImportMeta, list: ExperimentInput[]): DemoExperiment[] {
-  return list.map((e) => ({
-    id: e.id,
-    title: e.title,
-    file: e.file,
-    scriptSrc: new URL(e.module ?? `./${e.id}.ts`, meta.url).href,
-  }));
+export function finalizeExperiments(
+  meta: ImportMeta,
+  /** `apps/example/src` 下 demo 目录名，如 `demo2` */
+  demoFolder: string,
+  list: ExperimentInput[],
+): DemoExperiment[] {
+  return list.map((e) => {
+    const rel = (e.module ?? `./${e.id}.ts`).replace(/^\.\//, "");
+    return {
+      id: e.id,
+      title: e.title,
+      file: e.file,
+      scriptSrc: new URL(e.module ?? `./${e.id}.ts`, meta.url).href,
+      githubUrl: `${GITHUB_SOURCE_APPS_EXAMPLE_SRC}/${demoFolder}/${rel}`,
+    };
+  });
 }

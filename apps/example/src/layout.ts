@@ -14,6 +14,8 @@ export interface DemoExperiment {
   file: () => Promise<unknown>;
   /** iframe 内 &lt;script type="module"&gt; 的 src（由 `finalizeExperiments` 填充） */
   scriptSrc: string;
+  /** 当前小实验入口 .ts 在 GitHub 上的 blob 链接 */
+  githubUrl: string;
 }
 
 export interface DemoInfo {
