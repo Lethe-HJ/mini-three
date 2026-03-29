@@ -5,18 +5,24 @@ import { demos } from "./config";
 
 const LAST_DEMO_KEY = "last-demo-id";
 
+/** 同一 demo 下的一项小实验（iframe 入口脚本） */
+export interface DemoExperiment {
+  /** 在同一 {@link DemoInfo} 内唯一，用于下拉与缓存 key */
+  id: string;
+  title: string;
+  /** 写 `() => import("./xxx")`，供 Vite 打包；勿在父页调用 */
+  file: () => Promise<unknown>;
+  /** iframe 内 &lt;script type="module"&gt; 的 src（由 `finalizeExperiments` 填充） */
+  scriptSrc: string;
+}
+
 export interface DemoInfo {
   id: string;
   name: string;
   description: string;
   showInMenu: boolean;
-  /** 左栏 iframe 对应脚本 {@link leftFile} 的卡片标题 */
-  leftTitle: string;
-  /** 右栏 iframe 对应脚本 {@link rightFile} 的卡片标题 */
-  rightTitle: string;
-  leftFile: string;
-  rightFile: string;
-  init: () => Promise<void>;
+  /** 至少一项；多项时卡片右上角以下拉切换 */
+  experiments: DemoExperiment[];
 }
 
 @customElement("demo-layout")
