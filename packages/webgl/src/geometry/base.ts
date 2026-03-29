@@ -1,12 +1,22 @@
 import type { ShaderProgram } from "../common/program";
 import type { BoundingSphere } from "../utils/culling/frustum";
-import { createIbo, createVao, createVbo, deleteIbo, deleteVao, deleteVbo } from "./gpu";
+import {
+  createIbo,
+  createVao,
+  createVbo,
+  deleteIbo,
+  deleteVao,
+  deleteVbo,
+} from "./gpu";
 
 /** 索引缓冲区：与 WebGL `drawElements` 的 UNSIGNED_BYTE / SHORT / INT 对应 */
 export type IndexArray = Uint8Array | Uint16Array | Uint32Array;
 
 /** 根据 `indices` 的实际类型返回 `gl.UNSIGNED_BYTE` | `UNSIGNED_SHORT` | `UNSIGNED_INT` */
-export function indexArrayToElementType(gl: WebGL2RenderingContext, indices: IndexArray): number {
+export function indexArrayToElementType(
+  gl: WebGL2RenderingContext,
+  indices: IndexArray,
+): number {
   if (indices instanceof Uint32Array) {
     return gl.UNSIGNED_INT;
   }
@@ -39,7 +49,11 @@ export class Geometry {
   /** 按 ShaderProgram 缓存 VAO（属性指针 + 元素缓冲绑定） */
   private vaoByProgram = new Map<ShaderProgram, WebGLVertexArrayObject>();
 
-  constructor(vertices: Float32Array, normals: Float32Array, indices: IndexArray) {
+  constructor(
+    vertices: Float32Array,
+    normals: Float32Array,
+    indices: IndexArray,
+  ) {
     this.sortId = Geometry.sortIdSeq++;
     this.vertices = vertices;
     this.normals = normals;
@@ -83,8 +97,18 @@ export class Geometry {
     let vao = this.vaoByProgram.get(sp);
     if (!vao) {
       const attribs = [
-        { buffer: gpuObject.vertices, location: a_positionLocation, size: 3, type: gl.FLOAT },
-        { buffer: gpuObject.normals, location: a_normalLocation, size: 3, type: gl.FLOAT },
+        {
+          buffer: gpuObject.vertices,
+          location: a_positionLocation,
+          size: 3,
+          type: gl.FLOAT,
+        },
+        {
+          buffer: gpuObject.normals,
+          location: a_normalLocation,
+          size: 3,
+          type: gl.FLOAT,
+        },
       ];
       const created = createVao(gl, attribs, gpuObject.indices);
       this.vaoByProgram.set(sp, created);

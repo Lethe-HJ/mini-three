@@ -17,7 +17,12 @@ export type TimedLogFn = (info: {
   outcome: TimedOutcome;
 }) => void;
 
-const defaultLog: TimedLogFn = ({ className, methodName, durationMs, outcome }) => {
+const defaultLog: TimedLogFn = ({
+  className,
+  methodName,
+  durationMs,
+  outcome,
+}) => {
   const scope = className ? `${className}.${methodName}` : methodName;
   console.debug(`[timed] ${scope} ${durationMs.toFixed(3)}ms (${outcome})`);
 };
@@ -45,7 +50,8 @@ export function timed(options?: TimedOptions): MethodDecorator {
 
     const methodName = String(propertyKey);
     const className =
-      "name" in target && typeof (target as { name?: unknown }).name === "string"
+      "name" in target &&
+      typeof (target as { name?: unknown }).name === "string"
         ? (target as { name: string }).name
         : undefined;
 
@@ -62,7 +68,10 @@ export function timed(options?: TimedOptions): MethodDecorator {
       };
 
       try {
-        const result = (original as (...args: unknown[]) => unknown).apply(this, args);
+        const result = (original as (...args: unknown[]) => unknown).apply(
+          this,
+          args,
+        );
         if (isPromiseLike(result)) {
           return Promise.resolve(result).then(
             (value) => {

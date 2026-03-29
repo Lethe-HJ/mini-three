@@ -17,6 +17,9 @@ export class MeshLambertMaterial extends Material {
   }
 
   initShader() {
-    this.shaderSource = ShaderSource.create(lambertShader.vertex, lambertShader.fragment);
+    this.shaderSource = ShaderSource.create(
+      lambertShader.vertex,
+      lambertShader.fragment,
+    );
   }
 }

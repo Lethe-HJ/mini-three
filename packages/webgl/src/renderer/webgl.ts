@@ -203,7 +203,12 @@ export class WebGLRenderer {
         mesh.attach(gl, true);
         mesh.updateMatrix(gl, camera);
         const idx = mesh.geometry.indices;
-        gl.drawElements(gl.TRIANGLES, idx.length, indexArrayToElementType(gl, idx), 0);
+        gl.drawElements(
+          gl.TRIANGLES,
+          idx.length,
+          indexArrayToElementType(gl, idx),
+          0,
+        );
       }
     }
   }

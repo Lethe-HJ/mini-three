@@ -1,1 +1,6 @@
-export { timed, type TimedLogFn, type TimedOptions, type TimedOutcome } from "./timed";
+export {
+  timed,
+  type TimedLogFn,
+  type TimedOptions,
+  type TimedOutcome,
+} from "./timed";

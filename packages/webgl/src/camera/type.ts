@@ -29,7 +29,12 @@ export class Camera {
       this._up.toArray(),
     );
     const viewMatrix = m4.inverse(cameraMatrix);
-    const projectionMatrix = m4.perspective(this.fov, this.aspect, this.near, this.far);
+    const projectionMatrix = m4.perspective(
+      this.fov,
+      this.aspect,
+      this.near,
+      this.far,
+    );
     const vpMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
     this.matrix = {
@@ -89,7 +94,12 @@ export class Camera {
       this._up.toArray(),
     );
     const viewMatrix = m4.inverse(cameraMatrix);
-    const projectionMatrix = m4.perspective(this.fov, this.aspect, this.near, this.far);
+    const projectionMatrix = m4.perspective(
+      this.fov,
+      this.aspect,
+      this.near,
+      this.far,
+    );
     const vpMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
     this.matrix = {
@@ -103,7 +113,11 @@ export class Camera {
   /**
    * @param skipUseProgram 为 true 时不调用 `useProgram`（调用方已绑定当前 program，例如 WebGLRenderer）
    */
-  attach(gl: WebGL2RenderingContext, sp: ShaderProgram, skipUseProgram = false): void {
+  attach(
+    gl: WebGL2RenderingContext,
+    sp: ShaderProgram,
+    skipUseProgram = false,
+  ): void {
     if (!skipUseProgram) sp.useProgram();
     const loc = sp.getUniformLocation("u_cameraPosition");
     if (loc) gl.uniform3fv(loc, this._position.toArray());

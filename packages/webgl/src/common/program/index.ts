@@ -19,13 +19,22 @@ export class ShaderProgram {
     WebGLProgram | null
   >();
 
-  private static readonly glUniqueMap = new WeakMap<WebGL2RenderingContext, GLUnique>();
+  private static readonly glUniqueMap = new WeakMap<
+    WebGL2RenderingContext,
+    GLUnique
+  >();
 
   readonly gl: WebGL2RenderingContext;
   private readonly glProgram: WebGLProgram;
-  private readonly uniformLocCache = new Map<string, WebGLUniformLocation | null>();
+  private readonly uniformLocCache = new Map<
+    string,
+    WebGLUniformLocation | null
+  >();
 
-  static getUnique(glUnique: GLUnique, source: ShaderSource): ShaderProgramUnique {
+  static getUnique(
+    glUnique: GLUnique,
+    source: ShaderSource,
+  ): ShaderProgramUnique {
     return `${glUnique}-${source.unique}` as ShaderProgramUnique;
   }
 
@@ -54,7 +63,10 @@ export class ShaderProgram {
     return this.gl.getAttribLocation(this.glProgram, name);
   }
 
-  static create(gl: WebGL2RenderingContext, source: ShaderSource): ShaderProgram {
+  static create(
+    gl: WebGL2RenderingContext,
+    source: ShaderSource,
+  ): ShaderProgram {
     const glUniqueMap = ShaderProgram.glUniqueMap;
     if (!glUniqueMap.has(gl)) {
       glUniqueMap.set(gl, getShortUnique() as GLUnique);
@@ -84,8 +96,12 @@ export class ShaderProgram {
   ) {
     this.gl = gl;
     this.unique = unique;
-    const { vertex: vertexShaderSource, fragment: fragmentShaderSource } = source;
-    const program = this.buildProgram(vertexShaderSource.code, fragmentShaderSource.code);
+    const { vertex: vertexShaderSource, fragment: fragmentShaderSource } =
+      source;
+    const program = this.buildProgram(
+      vertexShaderSource.code,
+      fragmentShaderSource.code,
+    );
     if (!program) {
       throw new Error("Failed to create shader program");
     }
@@ -145,10 +161,16 @@ export class ShaderProgram {
     this.gl.shaderSource(shader, source);
   }
 
-  private compileShader(shader: WebGLShader, kind: "vertex" | "fragment"): boolean {
+  private compileShader(
+    shader: WebGLShader,
+    kind: "vertex" | "fragment",
+  ): boolean {
     this.gl.compileShader(shader);
     if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
-      console.error(`ERROR compiling ${kind} shader!`, this.gl.getShaderInfoLog(shader));
+      console.error(
+        `ERROR compiling ${kind} shader!`,
+        this.gl.getShaderInfoLog(shader),
+      );
       return false;
     }
     return true;
@@ -170,7 +192,10 @@ export class ShaderProgram {
   private verifyLink(program: WebGLProgram): boolean {
     this.gl.linkProgram(program);
     if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
-      console.error("ERROR linking program!", this.gl.getProgramInfoLog(program));
+      console.error(
+        "ERROR linking program!",
+        this.gl.getProgramInfoLog(program),
+      );
       return false;
     }
     return true;

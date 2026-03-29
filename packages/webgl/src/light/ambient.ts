@@ -42,7 +42,11 @@ export class AmbientLight {
     const loc = sp.getUniformLocation("u_ambientLightColor");
     if (loc) {
       const colorArray = this._color.toArray();
-      const scaledColor = colorArray.map((c) => c * this._intensity) as [number, number, number];
+      const scaledColor = colorArray.map((c) => c * this._intensity) as [
+        number,
+        number,
+        number,
+      ];
       gl.uniform3fv(loc, scaledColor);
     }
   }

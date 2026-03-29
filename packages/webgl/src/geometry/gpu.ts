@@ -2,7 +2,10 @@
 // 都是以函数形式存在，调用次数会比较多, 使用函数开销比class小
 
 /** 创建并上传静态 `ARRAY_BUFFER`（VBO） */
-export function createVbo(gl: WebGL2RenderingContext, data: ArrayBufferView): WebGLBuffer {
+export function createVbo(
+  gl: WebGL2RenderingContext,
+  data: ArrayBufferView,
+): WebGLBuffer {
   const buf = gl.createBuffer();
   if (!buf) {
     throw new Error("createVbo: createBuffer failed");
@@ -13,12 +16,18 @@ export function createVbo(gl: WebGL2RenderingContext, data: ArrayBufferView): We
 }
 
 /** 释放用作 `ARRAY_BUFFER` 的 VBO（`deleteBuffer`） */
-export function deleteVbo(gl: WebGL2RenderingContext, buffer: WebGLBuffer | null): void {
+export function deleteVbo(
+  gl: WebGL2RenderingContext,
+  buffer: WebGLBuffer | null,
+): void {
   gl.deleteBuffer(buffer);
 }
 
 /** 创建并上传静态 `ELEMENT_ARRAY_BUFFER`（IBO） */
-export function createIbo(gl: WebGL2RenderingContext, data: ArrayBufferView): WebGLBuffer {
+export function createIbo(
+  gl: WebGL2RenderingContext,
+  data: ArrayBufferView,
+): WebGLBuffer {
   const buf = gl.createBuffer();
   if (!buf) {
     throw new Error("createIbo: createBuffer failed");
@@ -29,7 +38,10 @@ export function createIbo(gl: WebGL2RenderingContext, data: ArrayBufferView): We
 }
 
 /** 释放用作 `ELEMENT_ARRAY_BUFFER` 的 IBO（底层同为 `deleteBuffer`） */
-export function deleteIbo(gl: WebGL2RenderingContext, buffer: WebGLBuffer | null): void {
+export function deleteIbo(
+  gl: WebGL2RenderingContext,
+  buffer: WebGLBuffer | null,
+): void {
   gl.deleteBuffer(buffer);
 }
 
@@ -78,6 +90,9 @@ export function createVao(
 }
 
 /** 释放 VAO（`deleteVertexArray`） */
-export function deleteVao(gl: WebGL2RenderingContext, vao: WebGLVertexArrayObject | null): void {
+export function deleteVao(
+  gl: WebGL2RenderingContext,
+  vao: WebGLVertexArrayObject | null,
+): void {
   gl.deleteVertexArray(vao);
 }

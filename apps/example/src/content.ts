@@ -67,7 +67,9 @@ export class DemoContent extends LitElement {
       align-items: center;
       color: #24292f;
       opacity: 0.85;
-      transition: opacity 0.15s, color 0.15s;
+      transition:
+        opacity 0.15s,
+        color 0.15s;
     }
     .github-source-link:hover {
       opacity: 1;

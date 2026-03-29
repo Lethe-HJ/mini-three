@@ -12,7 +12,11 @@ export function createCamera(config: {
   up: Vec3;
 }): Camera {
   const camera = new Camera(config.fov, config.aspect, config.near, config.far);
-  camera.setPosition(config.position[0], config.position[1], config.position[2]);
+  camera.setPosition(
+    config.position[0],
+    config.position[1],
+    config.position[2],
+  );
   camera.lookAt(config.target[0], config.target[1], config.target[2]);
   camera.setUp(config.up[0], config.up[1], config.up[2]);
   return camera;

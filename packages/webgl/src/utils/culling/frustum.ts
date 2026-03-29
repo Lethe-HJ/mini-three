@@ -33,12 +33,48 @@ export class Frustum {
   setFromProjectionMatrix(vpMatrix: Mat4): this {
     const m = vpMatrix;
     const p = this.planes;
-    this.normalizePlaneInto(p[0], m[3] + m[0], m[7] + m[4], m[11] + m[8], m[15] + m[12]); // left
-    this.normalizePlaneInto(p[1], m[3] - m[0], m[7] - m[4], m[11] - m[8], m[15] - m[12]); // right
-    this.normalizePlaneInto(p[2], m[3] + m[1], m[7] + m[5], m[11] + m[9], m[15] + m[13]); // bottom
-    this.normalizePlaneInto(p[3], m[3] - m[1], m[7] - m[5], m[11] - m[9], m[15] - m[13]); // top
-    this.normalizePlaneInto(p[4], m[3] + m[2], m[7] + m[6], m[11] + m[10], m[15] + m[14]); // near
-    this.normalizePlaneInto(p[5], m[3] - m[2], m[7] - m[6], m[11] - m[10], m[15] - m[14]); // far
+    this.normalizePlaneInto(
+      p[0],
+      m[3] + m[0],
+      m[7] + m[4],
+      m[11] + m[8],
+      m[15] + m[12],
+    ); // left
+    this.normalizePlaneInto(
+      p[1],
+      m[3] - m[0],
+      m[7] - m[4],
+      m[11] - m[8],
+      m[15] - m[12],
+    ); // right
+    this.normalizePlaneInto(
+      p[2],
+      m[3] + m[1],
+      m[7] + m[5],
+      m[11] + m[9],
+      m[15] + m[13],
+    ); // bottom
+    this.normalizePlaneInto(
+      p[3],
+      m[3] - m[1],
+      m[7] - m[5],
+      m[11] - m[9],
+      m[15] - m[13],
+    ); // top
+    this.normalizePlaneInto(
+      p[4],
+      m[3] + m[2],
+      m[7] + m[6],
+      m[11] + m[10],
+      m[15] + m[14],
+    ); // near
+    this.normalizePlaneInto(
+      p[5],
+      m[3] - m[2],
+      m[7] - m[6],
+      m[11] - m[10],
+      m[15] - m[14],
+    ); // far
     return this;
   }
 
@@ -62,7 +98,13 @@ export class Frustum {
     return true;
   }
 
-  private normalizePlaneInto(out: Plane, nx: number, ny: number, nz: number, d: number): void {
+  private normalizePlaneInto(
+    out: Plane,
+    nx: number,
+    ny: number,
+    nz: number,
+    d: number,
+  ): void {
     const len = Math.hypot(nx, ny, nz);
     if (len === 0) {
       out.nx = nx;

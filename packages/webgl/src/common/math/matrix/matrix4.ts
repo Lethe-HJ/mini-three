@@ -12,7 +12,12 @@ export const m4 = {
         0, 0, 0, 1
       ])
   },
-  perspective(fieldOfViewInRadians: number, aspect: number, near: number, far: number): number[] {
+  perspective(
+    fieldOfViewInRadians: number,
+    aspect: number,
+    near: number,
+    far: number,
+  ): number[] {
     const f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
     const rangeInv = 1.0 / (near - far);
     // prettier-ignore
@@ -91,7 +96,12 @@ export const m4 = {
       ];
   },
 
-  translate(m: Mat4, tx: number, ty: number, tz: number): number[] | Float32Array {
+  translate(
+    m: Mat4,
+    tx: number,
+    ty: number,
+    tz: number,
+  ): number[] | Float32Array {
     return m4.multiply(m, m4.translation(tx, ty, tz));
   },
 
@@ -153,12 +163,26 @@ export const m4 = {
     const tmp_22 = m00 * m11;
     const tmp_23 = m10 * m01;
 
-    const t0 = tmp_0 * m11 + tmp_3 * m21 + tmp_4 * m31 - (tmp_1 * m11 + tmp_2 * m21 + tmp_5 * m31);
-    const t1 = tmp_1 * m01 + tmp_6 * m21 + tmp_9 * m31 - (tmp_0 * m01 + tmp_7 * m21 + tmp_8 * m31);
+    const t0 =
+      tmp_0 * m11 +
+      tmp_3 * m21 +
+      tmp_4 * m31 -
+      (tmp_1 * m11 + tmp_2 * m21 + tmp_5 * m31);
+    const t1 =
+      tmp_1 * m01 +
+      tmp_6 * m21 +
+      tmp_9 * m31 -
+      (tmp_0 * m01 + tmp_7 * m21 + tmp_8 * m31);
     const t2 =
-      tmp_2 * m01 + tmp_7 * m11 + tmp_10 * m31 - (tmp_3 * m01 + tmp_6 * m11 + tmp_11 * m31);
+      tmp_2 * m01 +
+      tmp_7 * m11 +
+      tmp_10 * m31 -
+      (tmp_3 * m01 + tmp_6 * m11 + tmp_11 * m31);
     const t3 =
-      tmp_5 * m01 + tmp_8 * m11 + tmp_11 * m21 - (tmp_4 * m01 + tmp_9 * m11 + tmp_10 * m21);
+      tmp_5 * m01 +
+      tmp_8 * m11 +
+      tmp_11 * m21 -
+      (tmp_4 * m01 + tmp_9 * m11 + tmp_10 * m21);
 
     const d = 1.0 / (m00 * t0 + m10 * t1 + m20 * t2 + m30 * t3);
     // prettier-ignore

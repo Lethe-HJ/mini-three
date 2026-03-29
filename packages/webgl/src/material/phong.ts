@@ -32,7 +32,10 @@ export class MeshPhongMaterial extends Material {
   }
 
   initShader() {
-    this.shaderSource = ShaderSource.create(phongShader.vertex, phongShader.fragment);
+    this.shaderSource = ShaderSource.create(
+      phongShader.vertex,
+      phongShader.fragment,
+    );
   }
 
   initSpecular() {
@@ -51,7 +54,8 @@ export class MeshPhongMaterial extends Material {
       const locShininess = sp.getUniformLocation("u_material.shininess");
       if (locShininess) gl.uniform1f(locShininess, this.config.shininess);
       const locSpecular = sp.getUniformLocation("u_materialSpecular");
-      if (locSpecular && this._specular) gl.uniform3fv(locSpecular, this._specular.toArray());
+      if (locSpecular && this._specular)
+        gl.uniform3fv(locSpecular, this._specular.toArray());
     }
   }
 }

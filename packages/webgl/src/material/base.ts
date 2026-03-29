@@ -43,7 +43,8 @@ export abstract class Material {
   /** 确保已创建并与 `gl` 关联的 ShaderProgram（不切换当前 program） */
   ensureShaderProgram(gl: WebGL2RenderingContext): ShaderProgram {
     if (!this._shaderProgram) {
-      if (!this.shaderSource) throw new Error("Material: shader source is not set");
+      if (!this.shaderSource)
+        throw new Error("Material: shader source is not set");
       this._shaderProgram = ShaderProgram.create(gl, this.shaderSource);
     }
     return this._shaderProgram;

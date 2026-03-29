@@ -70,7 +70,10 @@ export class Mesh extends BaseObject {
     this.geometry.attach(gl, sp);
   }
 
-  private modelMatchesWorldSphereCache(model: Mat4, local: BoundingSphere): boolean {
+  private modelMatchesWorldSphereCache(
+    model: Mat4,
+    local: BoundingSphere,
+  ): boolean {
     if (!this.worldBoundingSphereCache) return false;
     const ls = this.worldBoundingSphereLocalSnapshot;
     if (
@@ -162,14 +165,22 @@ export class Mesh extends BaseObject {
     }
 
     if (!trsUnchanged) {
-      this.matrixes.translate = m4.translation(this.position.x, this.position.y, this.position.z);
+      this.matrixes.translate = m4.translation(
+        this.position.x,
+        this.position.y,
+        this.position.z,
+      );
       this.matrixes.rotation = m4.multiplySeries(
         m4.identity(),
         m4.xRotation(this.rotation.x),
         m4.yRotation(this.rotation.y),
         m4.zRotation(this.rotation.z),
       );
-      this.matrixes.scale = m4.scaling(this.scale.x, this.scale.y, this.scale.z);
+      this.matrixes.scale = m4.scaling(
+        this.scale.x,
+        this.scale.y,
+        this.scale.z,
+      );
       this.matrixes.localModel = m4.multiplySeries(
         this.matrixes.translate,
         this.matrixes.rotation,
@@ -226,15 +237,27 @@ export class Mesh extends BaseObject {
     }
     if (this.matrixes.model.location) {
       this.matrixUploadModel.set(modelMatrix);
-      gl.uniformMatrix4fv(this.matrixes.model.location, false, this.matrixUploadModel);
+      gl.uniformMatrix4fv(
+        this.matrixes.model.location,
+        false,
+        this.matrixUploadModel,
+      );
     }
     if (this.matrixes.mvp.location) {
       this.matrixUploadMvp.set(mvpMatrix);
-      gl.uniformMatrix4fv(this.matrixes.mvp.location, false, this.matrixUploadMvp);
+      gl.uniformMatrix4fv(
+        this.matrixes.mvp.location,
+        false,
+        this.matrixUploadMvp,
+      );
     }
     if (this.matrixes.normal.location) {
       this.matrixUploadNormal.set(normalMatrix);
-      gl.uniformMatrix4fv(this.matrixes.normal.location, false, this.matrixUploadNormal);
+      gl.uniformMatrix4fv(
+        this.matrixes.normal.location,
+        false,
+        this.matrixUploadNormal,
+      );
     }
   }
 

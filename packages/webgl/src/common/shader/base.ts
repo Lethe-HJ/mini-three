@@ -80,7 +80,10 @@ export function glsl(strings: TemplateStringsArray, ...values: any[]) {
 //     type: "unknown" as GlslType,
 //   };
 // }
-export function frag(strings: TemplateStringsArray, ...values: any[]): FragmentCodeSource {
+export function frag(
+  strings: TemplateStringsArray,
+  ...values: any[]
+): FragmentCodeSource {
   const { code, unique } = _glsl(strings, ...values);
   return {
     code: code as FragmentCode,
@@ -88,7 +91,10 @@ export function frag(strings: TemplateStringsArray, ...values: any[]): FragmentC
     type: "fragment",
   };
 }
-export function vert(strings: TemplateStringsArray, ...values: any[]): VertexCodeSource {
+export function vert(
+  strings: TemplateStringsArray,
+  ...values: any[]
+): VertexCodeSource {
   const { code, unique } = _glsl(strings, ...values);
   return {
     code: code as VertexCode,

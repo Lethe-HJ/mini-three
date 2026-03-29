@@ -110,14 +110,22 @@ export class Group extends BaseObject {
 
     if (!(trsUnchanged && parentUnchanged)) {
       if (!trsUnchanged) {
-        this.matrixes.translate = m4.translation(this.position.x, this.position.y, this.position.z);
+        this.matrixes.translate = m4.translation(
+          this.position.x,
+          this.position.y,
+          this.position.z,
+        );
         this.matrixes.rotation = m4.multiplySeries(
           m4.identity(),
           m4.xRotation(this.rotation.x),
           m4.yRotation(this.rotation.y),
           m4.zRotation(this.rotation.z),
         );
-        this.matrixes.scale = m4.scaling(this.scale.x, this.scale.y, this.scale.z);
+        this.matrixes.scale = m4.scaling(
+          this.scale.x,
+          this.scale.y,
+          this.scale.z,
+        );
         this.matrixes.localModel = m4.multiplySeries(
           this.matrixes.translate,
           this.matrixes.rotation,

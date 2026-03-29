@@ -1,6 +1,7 @@
 import { FragmentCodeSource, VertexCodeSource } from "./base";
 
-export type ShaderSourceUnique = `${VertexCodeSource["unique"]}-${FragmentCodeSource["unique"]}`;
+export type ShaderSourceUnique =
+  `${VertexCodeSource["unique"]}-${FragmentCodeSource["unique"]}`;
 
 export class ShaderSource {
   static readonly instances = new Map<ShaderSourceUnique, ShaderSource>();
@@ -17,7 +18,10 @@ export class ShaderSource {
     this._unique = unique ?? ShaderSource.getUnique(vertex, fragment);
   }
 
-  static create(vertex: VertexCodeSource, fragment: FragmentCodeSource): ShaderSource {
+  static create(
+    vertex: VertexCodeSource,
+    fragment: FragmentCodeSource,
+  ): ShaderSource {
     const unique = ShaderSource.getUnique(vertex, fragment);
     const hit = ShaderSource.instances.get(unique);
     if (hit) return hit;
@@ -26,7 +30,10 @@ export class ShaderSource {
     return instance;
   }
 
-  static getUnique(vertex: VertexCodeSource, fragment: FragmentCodeSource): ShaderSourceUnique {
+  static getUnique(
+    vertex: VertexCodeSource,
+    fragment: FragmentCodeSource,
+  ): ShaderSourceUnique {
     return `${vertex.unique}-${fragment.unique}` as ShaderSourceUnique;
   }
 
