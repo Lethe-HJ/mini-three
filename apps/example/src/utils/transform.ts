@@ -31,7 +31,10 @@ export class CameraTransformController {
   /** 弧度/秒，水平方向；0 表示关闭自动旋转 */
   private autoRotateSpeed: number;
 
-  constructor(camera: PerspectiveCamera | EPerspectiveCamera, config: CameraTransformConfig = {}) {
+  constructor(
+    camera: PerspectiveCamera | EPerspectiveCamera,
+    config: CameraTransformConfig = {},
+  ) {
     this.camera = camera;
     this.initialDistance = config.initialDistance ?? 30;
     this.minDistance = config.minDistance ?? 10;
@@ -61,7 +64,9 @@ export class CameraTransformController {
   private handleMouseMove = (event: MouseEvent) => {
     if (!this.isDragging) return;
     const currentMousePosition = new Vector2(event.clientX, event.clientY);
-    const mouseDelta = currentMousePosition.clone().sub(this.previousMousePosition);
+    const mouseDelta = currentMousePosition
+      .clone()
+      .sub(this.previousMousePosition);
     this.previousMousePosition.copy(currentMousePosition);
     this.applyPointerDelta(mouseDelta.x, mouseDelta.y);
   };
@@ -73,7 +78,10 @@ export class CameraTransformController {
   applyPointerDelta(dx: number, dy: number) {
     this.theta -= dx * this.rotationSpeed;
     this.phi += dy * this.rotationSpeed;
-    this.phi = Math.max(-Math.PI / 2 + 0.1, Math.min(Math.PI / 2 - 0.1, this.phi));
+    this.phi = Math.max(
+      -Math.PI / 2 + 0.1,
+      Math.min(Math.PI / 2 - 0.1, this.phi),
+    );
     this.updateCameraPosition();
     this.onChange?.();
   }
@@ -108,7 +116,10 @@ export class CameraTransformController {
     event.preventDefault();
     this.cameraDistance = Math.max(
       this.minDistance,
-      Math.min(this.maxDistance, this.cameraDistance - event.deltaY * this.zoomSpeed),
+      Math.min(
+        this.maxDistance,
+        this.cameraDistance - event.deltaY * this.zoomSpeed,
+      ),
     );
     this.updateCameraPosition();
     this.onChange?.();

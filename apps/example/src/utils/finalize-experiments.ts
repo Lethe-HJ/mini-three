@@ -3,7 +3,9 @@ import type { DemoExperiment } from "../layout";
 
 /** 生产构建由 `vite.config.ts` 里插件注入，见 `injectExperimentChunkUrlMap` */
 declare global {
-  var __MINI_THREE_EXP_CHUNK_URLS__: Record<string, Record<string, string>> | undefined;
+  var __MINI_THREE_EXP_CHUNK_URLS__:
+    | Record<string, Record<string, string>>
+    | undefined;
 }
 
 /** 在 `index.ts` 里写的简表；`file` 写 `() => import("./xxx")` */
@@ -26,9 +28,12 @@ function resolveScriptSrc(
 ): string {
   const relPath = modulePath ?? `./${id}.ts`;
   const globKey = relPath.startsWith("./") ? relPath : `./${relPath}`;
-  const fromMap = globalThis.__MINI_THREE_EXP_CHUNK_URLS__?.[demoFolder]?.[globKey];
+  const fromMap =
+    globalThis.__MINI_THREE_EXP_CHUNK_URLS__?.[demoFolder]?.[globKey];
   if (fromMap) {
-    return fromMap.startsWith("http") ? fromMap : new URL(fromMap, meta.url).href;
+    return fromMap.startsWith("http")
+      ? fromMap
+      : new URL(fromMap, meta.url).href;
   }
   return new URL(relPath, meta.url).href;
 }

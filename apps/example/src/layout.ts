@@ -29,7 +29,8 @@ export interface DemoInfo {
 
 @customElement("demo-layout")
 export class DemoLayout extends LitElement {
-  @property({ type: String }) activeId = localStorage.getItem(LAST_DEMO_KEY) ?? "demo1";
+  @property({ type: String }) activeId =
+    localStorage.getItem(LAST_DEMO_KEY) ?? "demo1";
   @state() private demoItems: DemoInfo[] = [];
 
   static styles = css`
@@ -87,7 +88,10 @@ export class DemoLayout extends LitElement {
       }
     }
     this.demoItems = demoInfos;
-    if (demoInfos.length > 0 && !demoInfos.find((item) => item.id === this.activeId)) {
+    if (
+      demoInfos.length > 0 &&
+      !demoInfos.find((item) => item.id === this.activeId)
+    ) {
       this.activeId = demoInfos[0].id;
     }
   }

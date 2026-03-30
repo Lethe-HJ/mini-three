@@ -22,7 +22,8 @@ function templateResultToString(result: TemplateResult): string {
 
 @customElement("demo-content")
 export class DemoContent extends LitElement {
-  @property({ type: String }) demoId = localStorage.getItem(LAST_DEMO_KEY) ?? "demo1";
+  @property({ type: String }) demoId =
+    localStorage.getItem(LAST_DEMO_KEY) ?? "demo1";
   @property({ attribute: false }) demoInfo: DemoInfo | null = null;
   @state() private loading = true;
   @state() private error: string | null = null;

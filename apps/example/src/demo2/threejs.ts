@@ -84,6 +84,8 @@ function loop(now: number) {
 }
 requestAnimationFrame(loop);
 
-const ro = new ResizeObserver(() => syncThreeCanvasSize(canvas, renderer, camera));
+const ro = new ResizeObserver(() =>
+  syncThreeCanvasSize(canvas, renderer, camera),
+);
 ro.observe(canvas);
 syncThreeCanvasSize(canvas, renderer, camera);
