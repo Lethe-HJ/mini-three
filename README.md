@@ -2,6 +2,12 @@
 
 一个从零实现的轻量级 WebGL 3D 渲染引擎，参考 Three.js API 设计，用于学习和理解现代图形渲染管线的核心原理。
 
+## 展示
+
+![](./docs/img/2026-03-30-14-13-58.png)
+![](./docs/img/2026-03-30-14-15-39.png)
+![](./docs/img/2026-03-30-14-16-34.png)
+
 ## 在线演示
 
 示例应用（对应 `apps/example`）：[http://81.71.84.163/](http://81.71.84.163/) — 交互说明见 [docs/demos.md](./docs/demos.md)。
@@ -14,13 +20,13 @@
 
 ## 文档
 
-| 文档 | 说明 |
-| --- | --- |
-| [docs/getting-started.md](./docs/getting-started.md) | 环境准备、安装依赖、常用命令、仓库目录速览 |
-| [docs/quick-start.md](./docs/quick-start.md) | 最小可运行代码示例 |
-| [docs/demos.md](./docs/demos.md) | 示例应用、`demo1`～`demo3` 与各 Demo 底层优化说明 |
-| [docs/monorepo.md](./docs/monorepo.md) | 多包目录、职责、workspace 规则与常用命令 |
-| [docs/commit-message.md](./docs/commit-message.md) | Conventional Commits、`commitlint` 与标题行规范 |
+| 文档                                                 | 说明                                              |
+| ---------------------------------------------------- | ------------------------------------------------- |
+| [docs/getting-started.md](./docs/getting-started.md) | 环境准备、安装依赖、常用命令、仓库目录速览        |
+| [docs/quick-start.md](./docs/quick-start.md)         | 最小可运行代码示例                                |
+| [docs/demos.md](./docs/demos.md)                     | 示例应用、`demo1`～`demo3` 与各 Demo 底层优化说明 |
+| [docs/monorepo.md](./docs/monorepo.md)               | 多包目录、职责、workspace 规则与常用命令          |
+| [docs/commit-message.md](./docs/commit-message.md)   | Conventional Commits、`commitlint` 与标题行规范   |
 
 ## 项目简介
 
