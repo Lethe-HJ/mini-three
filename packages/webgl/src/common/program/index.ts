@@ -75,14 +75,18 @@ export class ShaderProgram {
 
   /**
    * 获取 attribute 位置
-   * 注意: getAttribLocation对性能影响较大，尽量减少调用
+   * 注意: getAttribLocation对性能影响较大，尽量减少调用（内部已按 name 缓存）
    * @param name
    * @returns
    */
   getAttribLocation(name: string): number {
+    const cached = this.attribLocCache.get(name);
+    if (cached !== undefined) return cached;
     if (__LOG__)
-      console.log(`[ShaderProgram] getAttribLocation, name: ${name}`);
-    return this.gl.getAttribLocation(this.glProgram, name);
+      console.log(`[ShaderProgram] gl.getAttribLocation, name: ${name}`);
+    const loc = this.gl.getAttribLocation(this.glProgram, name);
+    this.attribLocCache.set(name, loc);
+    return loc;
   }
 
   static create(
