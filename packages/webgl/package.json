@@ -12,9 +12,9 @@
     }
   },
   "scripts": {
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc -b tsconfig.build.json && vite build",
     "check": "bash scripts/check.sh",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b tsconfig.build.json",
     "lint": "oxlint src",
     "lint:fix": "oxlint src --fix",
     "format:check": "oxfmt src --check",

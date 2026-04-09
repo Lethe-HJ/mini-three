@@ -1,0 +1,9 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./packages/types/tsconfig.build.json" },
+    { "path": "./packages/webgl/tsconfig.build.json" },
+    { "path": "./packages/webgpu/tsconfig.build.json" },
+    { "path": "./apps/example/tsconfig.build.json" }
+  ]
+}

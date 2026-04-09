@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "pnpm --filter @mini-three/webgl build && tsc --noEmit && vite build",
+    "build": "pnpm --filter @mini-three/webgl build && tsc -b tsconfig.build.json && vite build",
     "preview": "vite preview",
     "check": "bash scripts/check.sh",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b tsconfig.build.json",
     "lint": "echo \"skip lint for example app\"",
     "lint:fix": "echo \"skip lint:fix for example app\"",
     "format:check": "oxfmt src --check",

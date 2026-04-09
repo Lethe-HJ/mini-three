@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 set -eu
 
-pnpm -r --filter "./packages/*" --filter "./apps/*" run typecheck
+pnpm turbo run typecheck --filter="./packages/*" --filter="./apps/*"

@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 set -eu
 
-pnpm -r --filter "./packages/*" --filter "./apps/*" run check
+pnpm turbo run check --filter="./packages/*" --filter="./apps/*"
