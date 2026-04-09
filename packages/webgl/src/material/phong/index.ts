@@ -116,7 +116,8 @@ export class MeshPhongMaterial extends Material {
     const sp = this.ensureShaderProgram(gl);
     const shininess = this.config.shininess ?? DEFAULT_SHININESS;
     const nu = this.getPhongNeedUpdateFor(sp);
-    if (nu.shininess) {
+    // 与基类 `u_material.color` 相同：共享 program 时须每 draw 上传，见 Material.attach
+    {
       const locShininess = sp.getUniformLocation("u_material.shininess");
       if (locShininess) {
         gl.uniform1f(locShininess, shininess);
@@ -125,7 +126,7 @@ export class MeshPhongMaterial extends Material {
           console.log(`[MeshPhongMaterial] gl.uniform1f u_material.shininess`);
       }
     }
-    if (nu.specular) {
+    {
       const locSpecular = sp.getUniformLocation(U_Material.Specular);
       if (locSpecular) {
         const spec = this._specular ?? Color.fromNumber(DEFAULT_SPECULAR);

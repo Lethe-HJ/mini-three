@@ -225,21 +225,18 @@ export class PointLight extends Light {
       const locConst = sp.getUniformLocation(U_PointLight.Constant);
       if (locConst) {
         gl.uniform1f(locConst, this._attenuation[0]);
-        nu.attenuation = false;
         if (__LOG__)
           console.log(`[PointLight] gl.uniform1f u_pointLight.constant`);
       }
       const locLinear = sp.getUniformLocation(U_PointLight.Linear);
       if (locLinear) {
         gl.uniform1f(locLinear, this._attenuation[1]);
-        nu.attenuation = false;
         if (__LOG__)
           console.log(`[PointLight] gl.uniform1f u_pointLight.linear`);
       }
       const locQuadratic = sp.getUniformLocation(U_PointLight.Quadratic);
       if (locQuadratic) {
         gl.uniform1f(locQuadratic, this._attenuation[2]);
-        nu.attenuation = false;
         if (__LOG__)
           console.log(`[PointLight] gl.uniform1f u_pointLight.quadratic`);
       }

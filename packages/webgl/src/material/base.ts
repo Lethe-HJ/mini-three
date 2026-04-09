@@ -35,7 +35,6 @@ export abstract class Material {
   private _offProgramActivated: (() => void) | undefined;
 
   private readonly needUpdateMap = new Map<ShaderProgram, MaterialNeedUpdate>();
-  private _orphanColorDirty = true;
 
   protected _color: Color | undefined = undefined;
   protected config: MaterialConfig;
@@ -66,24 +65,6 @@ export abstract class Material {
 
   set color(value: Color) {
     this._color = value;
-    this.markColorDirty();
-  }
-
-  protected markColorDirty(): void {
-    this._orphanColorDirty = true;
-    for (const nu of this.needUpdateMap.values()) {
-      nu.color = true;
-    }
-  }
-
-  protected getNeedUpdateFor(sp: ShaderProgram): MaterialNeedUpdate {
-    let nu = this.needUpdateMap.get(sp);
-    if (!nu) {
-      nu = { color: this._orphanColorDirty };
-      this.needUpdateMap.set(sp, nu);
-      this._orphanColorDirty = false;
-    }
-    return nu;
   }
 
   /**
@@ -129,12 +110,12 @@ export abstract class Material {
     const sp = this.ensureShaderProgram(gl);
     this.ensureProgramActivatedSubscription(gl);
     if (!skipUseProgram) sp.useProgram();
-    const needUpdate = this.getNeedUpdateFor(sp);
-    if (needUpdate.color && this._color) {
+    // 多实例 Material 可共享同一 ShaderProgram：uniform 槽位在 GPU 上只有一份，
+    // 每 draw 前必须写入本实例的值；不能仅靠「CPU 未变」跳过（上一 draw 可能已覆盖）。
+    if (this._color) {
       const locColor = sp.getUniformLocation(U_Material.Color);
       if (locColor) {
         gl.uniform3fv(locColor, this._color.toArray());
-        needUpdate.color = false;
         if (__LOG__) console.log(`[Material] gl.uniform3fv u_material.color`);
       }
     }
